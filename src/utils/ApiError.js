@@ -5,6 +5,9 @@ class ApiError extends Error {
         errors = [],
         stack = ""
     ){
+        if (typeof statusCode !== 'number' || statusCode < 100 || statusCode > 599) {
+            throw new RangeError(`Invalid status code: ${statusCode}`);
+        }
         super(message)
         this.statusCode = statusCode
         this.message = message
