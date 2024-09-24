@@ -2,7 +2,7 @@ import { asyncHandler } from "../utils/asynchandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { uploadOnCloudinary , deleteFromCloudinaryByUrl} from "../utils/cloudinary.js";
 
 const changeUserPassword = asyncHandler(async (req, res) => {
     const { currentPassword, newPassword } = req.body;
@@ -47,7 +47,9 @@ const updateAccountDetails = asyncHandler( async (req, res) => {
 })
 
 const updateAvatar = asyncHandler(async (req, res) => {
+    const currentAvatarUrl = req.user.avatar;
     const avatarLocalPath = req.file?.path;
+    console.log(req.file);
     if (!avatarLocalPath) {
         throw new ApiError(400, "Please provide an avatar image");
     }
@@ -59,10 +61,13 @@ const updateAvatar = asyncHandler(async (req, res) => {
     if (!user) {
         throw new ApiError(404, "User not found");
     }
+    await deleteFromCloudinaryByUrl(currentAvatarUrl);
+
     return res.status(200).json(new ApiResponse(200, user, "Avatar updated successfully"));
 });
 
 const updateCoverImage = asyncHandler(async (req, res) => {
+    const currentCoverImageUrl = req.user.coverImage;
     const coverImageLocalPath = req.file?.path;
     if (!coverImageLocalPath) {
         throw new ApiError(400, "Please provide an cover image");
@@ -75,7 +80,23 @@ const updateCoverImage = asyncHandler(async (req, res) => {
     if (!user) {
         throw new ApiError(404, "User not found");
     }
+    if (currentCoverImageUrl) {
+        await deleteFromCloudinaryByUrl(currentCoverImageUrl);
+    }
     return res.status(200).json(new ApiResponse(200, user, "Cover image updated successfully"));
 });
 
-export { changeUserPassword, getCurrentUser, updateAccountDetails, updateAvatar, updateCoverImage };
+const deleteUser = asyncHandler(async (req, res) => {
+    const user = req.user;
+    await User.findByIdAndDelete(user._id);
+
+    await deleteFromCloudinaryByUrl(user.avatar);
+    if (user.coverImage) {
+        const publicId = extractPublicIdFromUrl(user.coverImage);
+        await deleteFromCloudinary(publicId);
+    }
+    return res.status(200).json(new ApiResponse(200, null, "User deleted successfully"));
+});
+
+
+export { changeUserPassword, getCurrentUser, updateAccountDetails, updateAvatar, updateCoverImage, deleteUser };

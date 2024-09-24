@@ -3,7 +3,7 @@ import { registerUser, loginUser, logoutUser } from "../controllers/auth.control
 import { getCurrentUser, updateAccountDetails, updateAvatar, updateCoverImage, changeUserPassword } from "../controllers/user.controller.js";
 import { localFileUpload } from "../middlewares/multer.middleware.js";
 import { verifyAccessToken } from "../middlewares/auth.middleware.js";
-
+import { deleteUser } from "../controllers/user.controller.js";
 const router = express.Router();
 
 router.post("/register", localFileUpload.fields([
@@ -20,9 +20,10 @@ router.post("/register", localFileUpload.fields([
 router.post("/login", loginUser);
 router.get("/current-user", verifyAccessToken, getCurrentUser);
 router.post("/update-account-details", verifyAccessToken, updateAccountDetails);
-router.post("/update-avatar", verifyAccessToken, updateAvatar);
-router.post("/update-cover-image", verifyAccessToken, updateCoverImage);
+router.post("/update-avatar", verifyAccessToken, localFileUpload.single("avatar"), updateAvatar);
+router.post("/update-cover-image", verifyAccessToken, localFileUpload.single("coverImage"), updateCoverImage);
 router.post("/change-password", verifyAccessToken, changeUserPassword);
+router.delete("/delete-user", verifyAccessToken, deleteUser);
 
 router.post("/login", loginUser);
 
