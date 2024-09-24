@@ -1,7 +1,7 @@
 import express from "express";
-import { registerUser } from "../controllers/user.controller.js";
+import { registerUser, loginUser, logoutUser } from "../controllers/user.controller.js";
 import { localFileUpload } from "../middlewares/multer.middleware.js";
-
+import { verifyAccessToken } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
@@ -16,4 +16,6 @@ router.post("/register", localFileUpload.fields([
     }
 ]), registerUser);
 
+router.post("/login", loginUser);
+router.post("/logout", verifyAccessToken, logoutUser);
 export default router;
