@@ -1,6 +1,6 @@
 import express from "express";
 import { registerUser, loginUser, logoutUser } from "../controllers/auth.controller.js";
-import { getCurrentUser, updateAccountDetails, updateAvatar, updateCoverImage, changeUserPassword } from "../controllers/user.controller.js";
+import { getCurrentUser, updateAccountDetails, updateAvatar, updateCoverImage, changeUserPassword,getUserChannelDetails,getWatchHistory } from "../controllers/user.controller.js";
 import { localFileUpload } from "../middlewares/multer.middleware.js";
 import { verifyAccessToken } from "../middlewares/auth.middleware.js";
 import { deleteUser } from "../controllers/user.controller.js";

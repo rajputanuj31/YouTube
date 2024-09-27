@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary , deleteFromCloudinaryByUrl} from "../utils/cloudinary.js";
+import mongoose from "mongoose";
 
 const changeUserPassword = asyncHandler(async (req, res) => {
     const { currentPassword, newPassword } = req.body;
@@ -36,7 +37,7 @@ const updateAccountDetails = asyncHandler( async (req, res) => {
             $set: {email, username, fullName}
         },
         {new: true}
-    ).select("-password");
+    ).select("-password -refreshToken");
 
     if (!user) {
         throw new ApiError(404, "User not found");
