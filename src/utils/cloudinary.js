@@ -26,13 +26,13 @@ const uploadOnCloudinary = async (localFilePath) => {
     }
 }
 
-const deleteFromCloudinaryByUrl = async (url) => {
+const deleteFromCloudinaryByUrl = async (url,type) => {
     try {
         const parts = url.split('/');
         // Get the last part of the URL and remove the extension
         const publicId = parts[parts.length - 1].split('.')[0];
 
-        await cloudinary.uploader.destroy(publicId);
+        await cloudinary.uploader.destroy(publicId, { resource_type: type });
     } catch (error) {
         console.error("Error deleting from Cloudinary:", error);
     }
