@@ -19,11 +19,13 @@ router.post("/register", localFileUpload.fields([
 
 router.post("/login", loginUser);
 router.get("/current-user", verifyAccessToken, getCurrentUser);
-router.post("/update-account-details", verifyAccessToken, updateAccountDetails);
-router.post("/update-avatar", verifyAccessToken, localFileUpload.single("avatar"), updateAvatar);
-router.post("/update-cover-image", verifyAccessToken, localFileUpload.single("coverImage"), updateCoverImage);
+router.patch("/update-account-details", verifyAccessToken, updateAccountDetails);
+router.patch("/update-avatar", verifyAccessToken, localFileUpload.single("avatar"), updateAvatar);
+router.patch("/update-cover-image", verifyAccessToken, localFileUpload.single("coverImage"), updateCoverImage);
 router.post("/change-password", verifyAccessToken, changeUserPassword);
 router.delete("/delete-user", verifyAccessToken, deleteUser);
+router.get("/watch-history", verifyAccessToken, getWatchHistory);
+router.get("/channel-details/:username", verifyAccessToken, getUserChannelDetails);
 
 router.post("/login", loginUser);
 
