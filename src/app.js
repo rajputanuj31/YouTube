@@ -2,7 +2,8 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import userRoutes from "./routes/user.route.js";
-import videoRoutes from "./routes/video.routes.js";
+import videoRoutes from "./routes/video.route.js";
+import likeRoutes from "./routes/like.route.js";
 import dotenv from "dotenv";
 
 dotenv.config(); // Load environment variables
@@ -23,5 +24,6 @@ app.use(express.static("public"));
 
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/videos", videoRoutes);
+app.use("/api/v1/likes", likeRoutes);
 
 export { app };
