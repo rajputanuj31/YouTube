@@ -7,6 +7,7 @@ import likeRoutes from "./routes/like.route.js";
 import commentRoutes from "./routes/comment.route.js";
 import playlistRoutes from "./routes/playlist.route.js"
 import subscriptionRoutes from "./routes/subscription.route.js"
+import tweetRoutes from "./routes/tweet.route.js"
 import dotenv from "dotenv";
 
 dotenv.config(); // Load environment variables
@@ -31,5 +32,6 @@ app.use("/api/v1/likes", likeRoutes);
 app.use("/api/v1/comments", commentRoutes);
 app.use("/api/v1/playlist", playlistRoutes);
 app.use("/api/v1/subscription", subscriptionRoutes);
+app.use("/api/v1/tweets", tweetRoutes);
 
 export { app };

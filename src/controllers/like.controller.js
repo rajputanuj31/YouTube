@@ -5,6 +5,7 @@ import { User } from "../models/user.model.js";
 import { Video } from "../models/video.model.js";
 import { Comment } from "../models/comment.model.js";
 import { Like } from "../models/like.model.js";
+import mongoose from "mongoose";
 
 const toggleLikeVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
@@ -91,22 +92,87 @@ const toggleLikeTweet = asyncHandler(async (req, res) => {
 });
 
 const getAllLikedVideos = asyncHandler(async (req, res) => {
-    const userId = req.user._id;
-    const likedVideos = await Like.find({ likedBy: userId }).populate("video");
-    return res.status(200).json(new ApiResponse(200, likedVideos, "Liked videos fetched successfully"));
+    const likedVideos = await Like.aggregate([
+        {
+            $match:{likedBy: new mongoose.Types.ObjectId(req.user._id)}
+        },
+        {
+            $lookup: {
+                from: 'videos',
+                localField: 'video',
+                foreignField: '_id',
+                as: 'videoDetails'
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                video: '$videoDetails',
+                createdAt: 1
+            }
+        },
+        {
+            $sort: { createdAt: -1 }
+        }
+    ]);
+
+    return res.status(200).json(
+        new ApiResponse(200, likedVideos, "Liked videos fetched successfully")
+    );
 });
 
 const getAllLikedComments = asyncHandler(async (req, res) => {
-    const userId = req.user._id;
-    const likedComments = await Like.find({ likedBy: userId }).populate("comment");
+    const likedComments = await Like.aggregate([
+        {
+            $match: { likedBy: new mongoose.Types.ObjectId(req.user._id) }
+        },
+        {
+            $lookup: {
+                from: 'comments',
+                localField: 'comment',
+                foreignField: '_id',
+                as: 'commentDetails'
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                comment: '$commentDetails',
+                createdAt: 1
+            }
+        },
+        {
+            $sort: { createdAt: -1 }
+        }
+    ]);
     return res.status(200).json(new ApiResponse(200, likedComments, "Liked comments fetched successfully"));
 });
 
 const getAllLikedTweets = asyncHandler(async (req, res) => {
-    const userId = req.user._id;
-    const likedTweets = await Like.find({ likedBy: userId }).populate("tweet");
+    const likedTweets = await Like.aggregate([
+        {
+            $match: { likedBy: new mongoose.Types.ObjectId(req.user._id) }
+        },
+        {
+            $lookup: {
+                from: 'tweets',
+                localField: 'tweet',
+                foreignField: '_id',
+                as: 'tweetDetails'
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                tweet: '$tweetDetails',
+                createdAt: 1
+            }
+        },
+        {
+            $sort: { createdAt: -1 }
+        }
+    ]);
     return res.status(200).json(new ApiResponse(200, likedTweets, "Liked tweets fetched successfully"));
 });
-
 
 export { toggleLikeVideo, toggleLikeComment, toggleLikeTweet, getAllLikedVideos, getAllLikedComments, getAllLikedTweets };
