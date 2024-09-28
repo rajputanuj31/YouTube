@@ -1,7 +1,7 @@
 import express from "express";
 import { localFileUpload } from "../middlewares/multer.middleware.js";
 import { verifyAccessToken } from "../middlewares/auth.middleware.js";
-import { uploadVideo, deleteVideo, getVideoById, updateVideo } from "../controllers/video.controller.js";
+import { uploadVideo, deleteVideo, getVideoById, updateVideo, getAllVideos } from "../controllers/video.controller.js";
 const router = express.Router();
 
 router.post("/upload-video", verifyAccessToken, localFileUpload.fields([
@@ -17,6 +17,6 @@ router.post("/upload-video", verifyAccessToken, localFileUpload.fields([
 router.delete("/delete-video/:videoId", verifyAccessToken, deleteVideo);
 router.get("/get-video/:videoId", verifyAccessToken, getVideoById);
 router.patch("/update-video/:videoId", verifyAccessToken, updateVideo);
-
+router.get("/get-all-videos", verifyAccessToken, getAllVideos);
 
 export default router;

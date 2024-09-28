@@ -110,4 +110,37 @@ const updateVideo = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, video, "Video updated successfully"));
 })
 
-export {uploadVideo, deleteVideo, getVideoById, updateVideo};
+const getAllVideos = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
+    
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const filterConditions = {};
+
+    if(query){
+        filterConditions.title = { $regex: query, $options: "i" };
+    }
+
+    if(userId){
+        filterConditions.owner = userId;
+    }
+    const sortConditions = {};
+    sortConditions[sortBy] = sortType === 'asc' ? 1 : -1;
+
+
+    const videos = await Video.find(filterConditions)
+    .sort(sortConditions)
+    .skip(skip)
+    .limit(limitNumber);
+
+    const totalVideos = await Video.countDocuments(filterConditions);
+    const totalPages = Math.ceil(totalVideos / limitNumber);
+
+    res.status(200).json(new ApiResponse(200, {videos, totalPages, currentPage: pageNumber}, "Videos fetched successfully"));
+
+})
+
+export {uploadVideo, deleteVideo, getVideoById, updateVideo, getAllVideos};
