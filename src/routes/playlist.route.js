@@ -4,11 +4,13 @@ import { createPlaylist, addVideoToPlaylist, removeVideoFromPlaylist, getPlaylis
 
 const router = express.Router();
 
-router.post("/create-playlist/:videoId",verifyAccessToken,createPlaylist);
-router.patch("/add-video-to-playlist/:playlistId/:videoId",verifyAccessToken,addVideoToPlaylist);
-router.post("/remove-video-from-playlist/:playlistId/:videoId",verifyAccessToken,removeVideoFromPlaylist);
-router.get("/get-playlist/:playlistId",verifyAccessToken,getPlaylistById);
-router.get("/get-playlists-by-user/:userId",verifyAccessToken,getPlaylistsByUserId);
-router.delete("/delete-playlist/:playlistId",verifyAccessToken,deletePlaylist);
-router.patch("/update-playlist/:playlistId",verifyAccessToken,updatePlaylist);
+router.use(verifyAccessToken);
+
+router.post("/create-playlist/:videoId", createPlaylist);
+router.patch("/add-video-to-playlist/:playlistId/:videoId", addVideoToPlaylist);
+router.post("/remove-video-from-playlist/:playlistId/:videoId", removeVideoFromPlaylist);
+router.get("/get-playlist/:playlistId", getPlaylistById);
+router.get("/get-playlists-by-user/:userId", getPlaylistsByUserId);
+router.delete("/delete-playlist/:playlistId", deletePlaylist);
+router.patch("/update-playlist/:playlistId", updatePlaylist);
 export default router;

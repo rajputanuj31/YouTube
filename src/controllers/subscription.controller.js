@@ -55,6 +55,9 @@ const getSubscribers = asyncHandler(async (req, res) => {
             }
         }
     ])
+    if (!subscribers) {
+        throw new ApiError(404, "Subscribers not found");
+    }
 
     return res.status(200).json(
         new ApiResponse(200, { subscribers, count: subscribers.length }, "Subscribers fetched successfully")
@@ -88,6 +91,10 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
             }
         }
     ])
+
+    if (!subscribedChannels) {
+        throw new ApiError(404, "Subscribed channels not found");
+    }
 
     return res.status(200).json(
         new ApiResponse(200, { subscribedChannels, count: subscribedChannels.length }, "Subscribed channels fetched successfully")
