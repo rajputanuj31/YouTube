@@ -77,7 +77,7 @@ const updateCoverImage = asyncHandler(async (req, res) => {
     if (!coverImage.url) {
         throw new ApiError(500, "Failed to upload cover image on cloudinary");
     }
-    const user = await User.findByIdAndUpdate(req.user?._id, {$set: {avatar: coverImage.url}}, {new: true}).select("-password");
+    const user = await User.findByIdAndUpdate(req.user?._id, {$set: {coverImage: coverImage.url}}, {new: true}).select("-password");
     if (!user) {
         throw new ApiError(404, "User not found");
     }

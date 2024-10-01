@@ -143,4 +143,58 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
 })
 
-export {uploadVideo, deleteVideo, getVideoById, updateVideo, getAllVideos};
+const getVideoOwnerDetails = asyncHandler(async (req, res) => {
+    const { videoId } = req.params;
+    const video = await Video.findById(videoId);
+    if (!video) {
+        throw new ApiError(400, "Video not found");
+    }
+    const channelDetails = await User.aggregate([
+        {
+            $match: {_id: video.owner}
+        },
+        {
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "channel",
+                as: "subscribers"
+            }
+        },
+        {
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "subscriber",
+                as: "subscribedTo"
+            }
+        },
+        {
+            $addFields: {
+                totalSubscribers: {$size: "$subscribers"},
+                totalSubscriptions: {$size: "$subscribedTo"},
+                isSubscribed: {
+                    $cond: {
+                        if: {$in: [req.user?._id, "$subscribers.subscriber"]},
+                        then: true,
+                        else: false
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                username: 1,
+                fullName: 1,
+                avatar: 1,
+                coverImage: 1,
+                totalSubscribers: 1,
+                totalSubscriptions: 1,
+                isSubscribed: 1
+            }
+        }
+    ])
+    res.status(200).json(new ApiResponse(200, channelDetails[0], "Video owner details fetched successfully"));
+});
+
+export {uploadVideo, deleteVideo, getVideoById, updateVideo, getAllVideos, getVideoOwnerDetails};

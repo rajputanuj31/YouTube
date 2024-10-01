@@ -88,7 +88,7 @@ export default function Navbar({ toggleSidebar }: { toggleSidebar?: () => void }
 
     return (
         <nav
-            className="flex items-center justify-between p-4 backdrop-blur-xl fixed top-0 left-0 right-0 z-50"
+            className="flex items-center justify-between p-3 backdrop-blur-xl fixed top-0 left-0 right-0 z-50"
             style={{
                 alignItems: 'center',
                 WebkitBackdropFilter: 'blur(5px)',
@@ -97,10 +97,10 @@ export default function Navbar({ toggleSidebar }: { toggleSidebar?: () => void }
             }}
         >
             <div className="flex items-center">
-                <button className="mr-4 text-white hover:text-gray-300" onClick={toggleSidebar}>
+                <button className="mr-4 text-black hover:text-gray-300" onClick={toggleSidebar}>
                     <FaBars size={24} />
                 </button>
-                <h1 className="text-xl font-bold text-white cursor-pointer" onClick={handleLogoClick}>Logo</h1>
+                <h1 className="text-2xl font-bold text-black cursor-pointer" onClick={handleLogoClick}>Logo</h1>
             </div>
             <div className="flex-grow flex justify-center">
                 <div className="relative w-1/2">
@@ -129,9 +129,9 @@ export default function Navbar({ toggleSidebar }: { toggleSidebar?: () => void }
                             <img
                                 src={currentUser.avatar}
                                 alt="User Avatar"
-                                width={32}
-                                height={32}
-                                className="rounded-full"
+                                width={30}
+                                height={30}
+                                className="h-10 w-10 rounded-full object-cover border-1 border-gray-300 shadow-sm transition-transform duration-300 transform hover:scale-105"
                             />
                         ) : (
                             <FaUser size={24} />
