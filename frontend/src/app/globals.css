@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: rgba(17, 19, 19, 0.4);
+  border-radius: 10px;
+  box-shadow: 0 0.5rem 1rem hsla(0, 2%, 76%, 0.1);
+  color: #fff;
+/* Center content vertically */
+  margin: 0;
+  padding: 0;
+}@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+
