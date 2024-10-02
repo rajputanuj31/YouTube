@@ -8,12 +8,30 @@ import Link from "next/link"
 export default function Profile() {
   const { error, loading } = useSelector((state: any) => state.user)
   const currentUser = useSelector((state: any) => state.user.currentUser?.data.user)
-  
+
   const [isClient, setIsClient] = useState(false)
-  const [videos, setVideos] = useState([])
+  const [videos, setVideos] = useState<any[]>([])
+  const [channelDetails, setChannelDetails] = useState<any>(null)
 
   useEffect(() => {
     setIsClient(true)
+    const fetchChannelDetails = async () => {
+      if (currentUser) {
+        try {
+          const response = await fetch(`/api/v1/users/channel-details/${currentUser.username}`)
+          if (!response.ok) {
+            throw new Error('Failed to fetch user')
+          }
+          const data = await response.json()
+          setChannelDetails(data.data)
+          console.log(data.data)
+        } catch (error) {
+          console.error(error)
+        }
+      }
+    }
+    fetchChannelDetails()
+
     const fetchVideos = async () => {
       try {
         const response = await fetch('/api/v1/videos/get-all-videos')
@@ -24,10 +42,10 @@ export default function Profile() {
         setVideos(data.data.videos)
       } catch (error) {
         console.error(error)
-      } 
+      }
     }
     fetchVideos()
-  }, [])
+  }, [currentUser])
 
   if (!isClient) {
     return null // Return null on the server-side
@@ -46,20 +64,16 @@ export default function Profile() {
   }
 
   return (
-    <div className="w-full h-screen overflow-y-auto">
-      <div className="min-h-screen flex flex-col">
-        {/* Top Half: User Profile */}
-        <div className="h-[60vh] w-full flex flex-col relative flex-shrink-0" style={{
-          background: "rgba(17, 19, 19, 0.4)",
-          boxShadow: "0 0.5rem 1rem hsla(0, 2%, 76%, 0.1)",
-          color: "#fff"
-        }}>
-          <div className="absolute inset-0">
+    <div className="w-full min-h-screen bg-black text-white pt-16"> {/* Added pt-16 to account for Navbar height */}
+      <div className="flex flex-col">
+        {/* Cover Image Section */}
+        <div className="h-[30vh] w-full relative ">
+          <div className="absolute inset-0 m-2 rounded-lg">
             {currentUser.coverImage ? (
               <img
-                src={currentUser.coverImage}
+                src={channelDetails?.coverImage}
                 alt="Cover"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover rounded-2xl"
               />
             ) : (
               <Image
@@ -70,67 +84,75 @@ export default function Profile() {
               />
             )}
           </div>
-          <div className="relative z-10 flex-grow w-full flex items-end">
+        </div>
+
+        {/* User Profile Section */}
+        <div className="w-full flex flex-col relative mt-12">
+          <div className="relative z-10 flex-grow w-full flex items-center justify-center -mt-16">
             <div className="w-full px-4 sm:px-6 lg:px-8">
-              <div className="bg-white shadow-lg rounded-lg overflow-hidden text-white" style={{
-                   backdropFilter: 'blur(20rem)',
-                   backgroundColor: 'rgba(255, 255, 255, 0.18)',
-                   boxShadow: '0 1px 4px rgba(0, 0, 0, 0.6)',
-                   
-              }}>
-                <div className="px-6 py-8 sm:p-6">
-                  <div className="flex flex-col sm:flex-row items-center ">
-                    <div className="mb-6 sm:mb-0 sm:mr-8">
-                      {currentUser.avatar ? (
-                        <img
-                          src={currentUser.avatar}
-                          alt="Avatar"
-                          className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-white"
-                        />
-                      ) : (
-                        <Image
-                          src="/default-avatar.jpg"
-                          alt="Default Avatar"
-                          width={160}
-                          height={160}
-                          className="rounded-full border-4 border-white"
-                        />
-                      )}
+              {/* <div className="bg-white w-4/5 mx-auto shadow-lg rounded-3xl overflow-hidden text-white" style={{
+                backdropFilter: 'blur(4rem)',
+                backgroundColor: 'rgba(255, 255, 255, 0.18)',
+                boxShadow: '0 1px 4px rgba(0, 0, 0, 0.6)',
+              }}> */}
+                <div className="px-6  sm:p-6">
+                  <div className="flex flex-col sm:flex-row items-center justify-between">
+                    <div className="flex flex-col sm:flex-row items-center">
+                      <div className="mb-6 sm:mb-0 sm:mr-8">
+                        {currentUser.avatar ? (
+                          <img
+                            src={currentUser.avatar}
+                            alt="Avatar"
+                            className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-2 border-black"
+                          />
+                        ) : (
+                          <Image
+                            src="/default-avatar.jpg"
+                            alt="Default Avatar"
+                            width={160}
+                            height={160}
+                            className="rounded-full border-4 border-white"
+                          />
+                        )}
+                      </div>
+                      <div className="text-center sm:text-left">
+                        <h1 className="text-3xl sm:text-4xl font-bold text-white ">{currentUser.fullName}</h1>
+                        <p className=" ml-1 text-white">@{currentUser.username} </p>
+                      </div>
                     </div>
-                    <div className="text-center sm:text-left">
-                      <h1 className="text-3xl sm:text-4xl font-bold text-black  ">{currentUser.fullName}</h1>
-                      <p className="text-xl ml-1 text-black">@{currentUser.username}</p>
-                      <p className="text-xl ml-1 text-black mt-2">{currentUser.email}</p>
+                    <div className="mt-4 sm:mt-0">
+                      <button className="border-2 border-white rounded-full hover:bg-gray-500 text-white font-bold py-2 px-4 ">
+                        Upload Video
+                      </button>
                     </div>
                   </div>
                   <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
-                      <p className="text-black text-xl">Member since: {new Date(currentUser.createdAt).toLocaleDateString()}</p>
-                      <p className="text-black  text-xl">Last updated: {new Date(currentUser.updatedAt).toLocaleDateString()}</p>
+                      <p className="text-white ">Member since: {new Date(currentUser.createdAt).toLocaleDateString()}</p>
+                      <p className="text-white ">Last updated: {new Date(currentUser.updatedAt).toLocaleDateString()}</p>
                     </div>
-
                   </div>
                 </div>
-              </div>
+              {/* </div> */}
             </div>
           </div>
         </div>
 
-        {/* Bottom Half: Videos Section */}
-        <div className="flex-grow w-full py-8 bg-black" style={{
-
-        }}>
+        {/* Videos Section */}
+        <div className="w-full ">
           <div className="w-full px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold mb-4 text-white">Videos</h2>
+            <h2 className="text-2xl font-bold mb-2 ">Videos</h2>
+            <hr className="w-full h-1 border-gray-800" />
+
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ">
               {videos.length > 0 ? (
                 videos.map((video: any, index: number) => (
                   <Link href={`/video/${video._id}`} key={index}>
                     <div className="bg-black rounded-lg overflow-hidden shadow-lg transition-all duration-500 hover:scale-105 p-2 hover:cursor-pointer hover:bg-gray-800" style={{ height: '250px' }}>
                       <div className="relative h-2/3">
-                        <img 
-                          src={video.thumbnail || '/default-thumbnail.jpg'} 
-                          alt={video.title} 
+                        <img
+                          src={video.thumbnail || '/default-thumbnail.jpg'}
+                          alt={video.title}
                           className="absolute top-0 left-0 w-full h-full object-cover rounded-lg"
                         />
                         <p className="text-white text-sm absolute bottom-2 right-2 bg-black bg-opacity-50 p-1 rounded-lg">{parseFloat(video.duration).toFixed(2)}</p>

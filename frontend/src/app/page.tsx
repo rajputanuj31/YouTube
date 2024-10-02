@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar toggleSidebar={toggleSidebar} />
-      <div className="flex flex-1 bg-[#5E5E5E] pt-16"> {/* Added pt-16 to account for Navbar height */}
+      <div className="flex flex-1 bg-black pt-16"> {/* Added pt-16 to account for Navbar height */}
         {isSidebarVisible && <Sidebar />}
         <main className={`flex-1 p-6 transition-all duration-300 ${isSidebarVisible ? 'ml-64' : ''}`}>
           {/* Top navigation */}

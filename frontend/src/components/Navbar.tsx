@@ -88,26 +88,21 @@ export default function Navbar({ toggleSidebar }: { toggleSidebar?: () => void }
 
     return (
         <nav
-            className="flex items-center justify-between p-3 backdrop-blur-xl fixed top-0 left-0 right-0 z-50"
-            style={{
-                alignItems: 'center',
-                WebkitBackdropFilter: 'blur(5px)',
-                backgroundColor: 'rgba(255, 255, 255, 0.18)',
-                boxShadow: '0 1px 4px rgba(0, 0, 0, 0.6)',
-            }}
+            className="flex items-center bg-black justify-between p-3 backdrop-blur-xl fixed top-0 left-0 right-0 z-50 border-b border-gray-800"
+
         >
             <div className="flex items-center">
-                <button className="mr-4 text-black hover:text-gray-300" onClick={toggleSidebar}>
+                <button className="mr-4 text-white hover:text-gray-300" onClick={toggleSidebar}>
                     <FaBars size={24} />
                 </button>
-                <h1 className="text-2xl font-bold text-black cursor-pointer" onClick={handleLogoClick}>Logo</h1>
+                <h1 className="text-2xl font-bold text-white cursor-pointer" onClick={handleLogoClick}>Logo</h1>
             </div>
             <div className="flex-grow flex justify-center">
                 <div className="relative w-1/2">
                     <input
                         type="text"
                         placeholder="Search..."
-                        className="w-full py-2 px-4 rounded-2xl focus:outline-none"
+                        className="w-full py-2 px-4 rounded-full focus:outline-none border border-gray-800"
                         style={{
                             background: 'rgba(17, 19, 19, 0.4)',
                             borderRadius: '10px',
@@ -138,18 +133,18 @@ export default function Navbar({ toggleSidebar }: { toggleSidebar?: () => void }
                         )}
                     </button>
                     {showUserMenu && (
-                        <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                        <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-black ring-1 ring-black ring-opacity-5">
                             <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                                 <button
                                     onClick={handleProfileClick}
-                                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full text-left"
+                                    className="block px-4 py-2 text-sm text-white hover:bg-gray-100 hover:text-gray-900 w-full text-left"
                                     role="menuitem"
                                 >
                                     <FaUserCircle className="inline-block mr-2" /> Profile Details
                                 </button>
                                 <button
                                     onClick={handleSignOut}
-                                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full text-left"
+                                    className="block px-4 py-2 text-sm text-white hover:bg-gray-100 hover:text-gray-900 w-full text-left"
                                     role="menuitem"
                                 >
                                     <FaSignOutAlt className="inline-block mr-2" /> Sign Out
