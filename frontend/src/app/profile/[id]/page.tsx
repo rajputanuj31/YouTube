@@ -4,15 +4,30 @@ import Image from "next/image"
 import { useSelector } from "react-redux"
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 export default function Profile() {
+  const router = useRouter()
   const { error, loading } = useSelector((state: any) => state.user)
   const currentUser = useSelector((state: any) => state.user.currentUser?.data.user)
 
   const [isClient, setIsClient] = useState(false)
   const [videos, setVideos] = useState<any[]>([])
   const [channelDetails, setChannelDetails] = useState<any>(null)
-
+  const getTimeAgo = (date: string) => {
+    const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
+    let interval = seconds / 31536000;
+    if (interval > 1) return Math.floor(interval) + " years ago";
+    interval = seconds / 2592000;
+    if (interval > 1) return Math.floor(interval) + " months ago";
+    interval = seconds / 86400;
+    if (interval > 1) return Math.floor(interval) + " days ago";
+    interval = seconds / 3600;
+    if (interval > 1) return Math.floor(interval) + " hours ago";
+    interval = seconds / 60;
+    if (interval > 1) return Math.floor(interval) + " minutes ago";
+    return Math.floor(seconds) + " seconds ago";
+  };
   useEffect(() => {
     setIsClient(true)
     const fetchChannelDetails = async () => {
@@ -24,7 +39,6 @@ export default function Profile() {
           }
           const data = await response.json()
           setChannelDetails(data.data)
-          console.log(data.data)
         } catch (error) {
           console.error(error)
         }
@@ -33,15 +47,17 @@ export default function Profile() {
     fetchChannelDetails()
 
     const fetchVideos = async () => {
-      try {
-        const response = await fetch('/api/v1/videos/get-all-videos')
-        if (!response.ok) {
-          throw new Error('Failed to fetch videos')
+      if (currentUser) {
+        try {
+          const response = await fetch(`/api/v1/videos/get-video-by-user-id/${currentUser._id}`)
+          if (!response.ok) {
+            throw new Error('Failed to fetch videos')
+          }
+          const data = await response.json()
+          setVideos(data.data)
+        } catch (error) {
+          console.error(error)
         }
-        const data = await response.json()
-        setVideos(data.data.videos)
-      } catch (error) {
-        console.error(error)
       }
     }
     fetchVideos()
@@ -67,35 +83,23 @@ export default function Profile() {
     <div className="w-full min-h-screen bg-black text-white pt-16"> {/* Added pt-16 to account for Navbar height */}
       <div className="flex flex-col">
         {/* Cover Image Section */}
-        <div className="h-[30vh] w-full relative ">
-          <div className="absolute inset-0 m-2 rounded-lg">
-            {currentUser.coverImage ? (
+        {channelDetails?.coverImage && (
+          <div className="h-[30vh] w-full relative ">
+            <div className="absolute inset-0 m-2 rounded-lg">
               <img
-                src={channelDetails?.coverImage}
+                src={channelDetails.coverImage}
                 alt="Cover"
                 className="w-full h-full object-cover rounded-2xl"
               />
-            ) : (
-              <Image
-                src="/default-cover.jpg"
-                alt="Default Cover"
-                layout="fill"
-                objectFit="cover"
-              />
-            )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* User Profile Section */}
         <div className="w-full flex flex-col relative mt-12">
           <div className="relative z-10 flex-grow w-full flex items-center justify-center -mt-16">
             <div className="w-full px-4 sm:px-6 lg:px-8">
-              {/* <div className="bg-white w-4/5 mx-auto shadow-lg rounded-3xl overflow-hidden text-white" style={{
-                backdropFilter: 'blur(4rem)',
-                backgroundColor: 'rgba(255, 255, 255, 0.18)',
-                boxShadow: '0 1px 4px rgba(0, 0, 0, 0.6)',
-              }}> */}
-                <div className="px-6  sm:p-6">
+                <div className="px-6 mt-3">
                   <div className="flex flex-col sm:flex-row items-center justify-between">
                     <div className="flex flex-col sm:flex-row items-center">
                       <div className="mb-6 sm:mb-0 sm:mr-8">
@@ -117,11 +121,14 @@ export default function Profile() {
                       </div>
                       <div className="text-center sm:text-left">
                         <h1 className="text-3xl sm:text-4xl font-bold text-white ">{currentUser.fullName}</h1>
-                        <p className=" ml-1 text-white">@{currentUser.username} </p>
+                        <p className="ml-1 text-gray-500">@{currentUser.username} • {channelDetails?.totalSubscribers || 0} subscribers • {videos.length} videos</p>
                       </div>
                     </div>
                     <div className="mt-4 sm:mt-0">
-                      <button className="border-2 border-white rounded-full hover:bg-gray-500 text-white font-bold py-2 px-4 ">
+                      <button 
+                        className="border-2 border-white rounded-full hover:bg-gray-500 text-white font-bold py-2 px-4"
+                        onClick={() => router.push('/video/uploadVideo')}
+                      >
                         Upload Video
                       </button>
                     </div>
@@ -133,7 +140,6 @@ export default function Profile() {
                     </div>
                   </div>
                 </div>
-              {/* </div> */}
             </div>
           </div>
         </div>
@@ -148,20 +154,19 @@ export default function Profile() {
               {videos.length > 0 ? (
                 videos.map((video: any, index: number) => (
                   <Link href={`/video/${video._id}`} key={index}>
-                    <div className="bg-black rounded-lg overflow-hidden shadow-lg transition-all duration-500 hover:scale-105 p-2 hover:cursor-pointer hover:bg-gray-800" style={{ height: '250px' }}>
+                    <div className="bg-black rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow p-2 hover:cursor-pointer hover:border hover:border-gray-600" style={{ height: '250px' }}>
                       <div className="relative h-2/3">
                         <img
                           src={video.thumbnail || '/default-thumbnail.jpg'}
                           alt={video.title}
                           className="absolute top-0 left-0 w-full h-full object-cover rounded-lg"
                         />
-                        <p className="text-white text-sm absolute bottom-2 right-2 bg-black bg-opacity-50 p-1 rounded-lg">{parseFloat(video.duration).toFixed(2)}</p>
+                        <p className="text-white text-sm absolute bottom-2 right-2 bg-black bg-opacity-50 p-1 rounded-lg">{(parseFloat(video.duration) / 60).toFixed(2)} </p>
                       </div>
                       <div className="p-2 h-1/3 flex flex-col justify-start">
                         <h3 className="text-md font-semibold text-white truncate">{video.title}</h3>
                         <div className="flex justify-between items-center text-gray-400 text-xs">
-                          <span>{video.views} views</span>
-                          <span>{new Date(video.createdAt).toLocaleDateString()}</span>
+                        <p className="text-gray-400 text-sm">{video.views} views • {getTimeAgo(video.createdAt)}</p>
                         </div>
                       </div>
                     </div>

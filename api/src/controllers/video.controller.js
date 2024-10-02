@@ -197,4 +197,9 @@ const getVideoOwnerDetails = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, channelDetails[0], "Video owner details fetched successfully"));
 });
 
-export {uploadVideo, deleteVideo, getVideoById, updateVideo, getAllVideos, getVideoOwnerDetails};
+const getVideoByUserId = asyncHandler(async (req, res) => {
+    const { userId } = req.params;
+    const videos = await Video.find({ owner: userId });
+    res.status(200).json(new ApiResponse(200, videos, "Videos fetched successfully"));
+})
+export {uploadVideo, deleteVideo, getVideoById, updateVideo, getAllVideos, getVideoOwnerDetails, getVideoByUserId};

@@ -1,11 +1,12 @@
 "use client"
 
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { FaThumbsUp, FaThumbsDown, FaDownload, FaShare } from 'react-icons/fa'
 
 export default function VideoPage() {
   const params = useParams()
+  const router = useRouter()
   const id = params.id as string
   const [video, setVideo] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -47,6 +48,11 @@ export default function VideoPage() {
     }
   }, [id])
 
+  const handleAvatarClick = () => {
+    if (videoOwner && videoOwner._id) {
+      router.push(`/profile/${videoOwner._id}`)
+    }
+  }
 
   if (loading) {
     return <div className="h-[calc(100vh-64px)] flex items-center justify-center">Loading...</div>
@@ -75,7 +81,12 @@ export default function VideoPage() {
         <div className="flex items-center justify-between ml-2 mr-2">
           <div className="flex items-center">
             {videoOwner && videoOwner.avatar && (
-              <img src={videoOwner.avatar} alt={videoOwner.name} className="w-10 h-10 rounded-full mr-2" />
+              <img 
+                src={videoOwner.avatar} 
+                alt={videoOwner.name} 
+                className="w-10 h-10 rounded-full mr-2 cursor-pointer" 
+                onClick={handleAvatarClick}
+              />
             )}
             <div className="flex flex-col">
               <p className="text-white text-sm font-bold">{videoOwner?.fullName}</p>

@@ -1,5 +1,5 @@
 'use client'
-import { FaBars, FaSearch, FaUser, FaSignOutAlt, FaUserCircle, FaTrash } from 'react-icons/fa';
+import { FaBars, FaSearch, FaUser, FaSignOutAlt, FaUserCircle, FaTrash, FaUpload } from 'react-icons/fa';
 import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
@@ -45,6 +45,7 @@ export default function Navbar({ toggleSidebar }: { toggleSidebar?: () => void }
     const toggleRegister = () => {
         setShowRegister(!showRegister);
         setShowLogin(false);
+        router.push('/');
     };
 
     const handleAvatarClick = () => {
@@ -57,7 +58,7 @@ export default function Navbar({ toggleSidebar }: { toggleSidebar?: () => void }
 
     const handleProfileClick = () => {
         if (currentUser) {
-            router.push('/profile');
+            router.push(`/profile/${currentUser._id}`);
             setShowUserMenu(false);
         }
     };
@@ -80,6 +81,10 @@ export default function Navbar({ toggleSidebar }: { toggleSidebar?: () => void }
         // Implement delete account logic here
         // For example: dispatch(deleteAccount());
         setShowUserMenu(false);
+    };
+
+    const handleUploadVideo = () => {
+        router.push('/video/uploadVideo');
     };
 
     if (!isClient) {
@@ -118,47 +123,56 @@ export default function Navbar({ toggleSidebar }: { toggleSidebar?: () => void }
                 </div>
             </div>
             {currentUser ? (
-                <div className="relative" ref={userMenuRef}>
-                    <button className="text-white hover:text-gray-300" onClick={handleAvatarClick}>
-                        {currentUser.avatar ? (
-                            <img
-                                src={currentUser.avatar}
-                                alt="User Avatar"
-                                width={30}
-                                height={30}
-                                className="h-10 w-10 rounded-full object-cover border-1 border-gray-300 shadow-sm transition-transform duration-300 transform hover:scale-105"
-                            />
-                        ) : (
-                            <FaUser size={24} />
-                        )}
+                <div className="flex items-center">
+                    <button 
+                        className="text-white hover:text-gray-300 mr-8" 
+                        onClick={handleUploadVideo}
+                        title="Upload Video"
+                    >
+                        <FaUpload size={20} />
                     </button>
-                    {showUserMenu && (
-                        <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-black ring-1 ring-black ring-opacity-5">
-                            <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                                <button
-                                    onClick={handleProfileClick}
-                                    className="block px-4 py-2 text-sm text-white hover:bg-gray-100 hover:text-gray-900 w-full text-left"
-                                    role="menuitem"
-                                >
-                                    <FaUserCircle className="inline-block mr-2" /> Profile Details
-                                </button>
-                                <button
-                                    onClick={handleSignOut}
-                                    className="block px-4 py-2 text-sm text-white hover:bg-gray-100 hover:text-gray-900 w-full text-left"
-                                    role="menuitem"
-                                >
-                                    <FaSignOutAlt className="inline-block mr-2" /> Sign Out
-                                </button>
-                                <button
-                                    onClick={handleDeleteAccount}
-                                    className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 hover:text-red-700 w-full text-left"
-                                    role="menuitem"
-                                >
-                                    <FaTrash className="inline-block mr-2" /> Delete Account
-                                </button>
+                    <div className="relative" ref={userMenuRef}>
+                        <button className="text-white hover:text-gray-300" onClick={handleAvatarClick}>
+                            {currentUser.avatar ? (
+                                <img
+                                    src={currentUser.avatar}
+                                    alt="User Avatar"
+                                    width={30}
+                                    height={30}
+                                    className="h-10 w-10 rounded-full object-cover border-1 border-gray-300 shadow-sm transition-transform duration-300 transform hover:scale-105"
+                                />
+                            ) : (
+                                <FaUser size={24} />
+                            )}
+                        </button>
+                        {showUserMenu && (
+                            <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-black ring-1 ring-black ring-opacity-5">
+                                <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                                    <button
+                                        onClick={handleProfileClick}
+                                        className="block px-4 py-2 text-sm text-white hover:bg-gray-100 hover:text-gray-900 w-full text-left"
+                                        role="menuitem"
+                                    >
+                                        <FaUserCircle className="inline-block mr-2" /> Profile Details
+                                    </button>
+                                    <button
+                                        onClick={handleSignOut}
+                                        className="block px-4 py-2 text-sm text-white hover:bg-gray-100 hover:text-gray-900 w-full text-left"
+                                        role="menuitem"
+                                    >
+                                        <FaSignOutAlt className="inline-block mr-2" /> Sign Out
+                                    </button>
+                                    <button
+                                        onClick={handleDeleteAccount}
+                                        className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 hover:text-red-700 w-full text-left"
+                                        role="menuitem"
+                                    >
+                                        <FaTrash className="inline-block mr-2" /> Delete Account
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             ) : (
                 <div className="relative">
