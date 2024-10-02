@@ -100,15 +100,15 @@ const deleteUser = asyncHandler(async (req, res) => {
 });
 
 const getUserChannelDetails = asyncHandler(async (req, res) => {
-    const {username} = req.params;
+    const {userId} = req.params;
 
-    if (!username) {
-        throw new ApiError(400, "Username is required");
+    if (!userId) {
+        throw new ApiError(400, "User ID is required");
     }
 
     const channelDetails = await User.aggregate([
         {
-            $match: {username: username?.toLowerCase()}
+            $match: {_id: new mongoose.Types.ObjectId(userId)}
         },
         {
             $lookup: {

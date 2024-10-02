@@ -25,7 +25,7 @@ router.patch("/update-cover-image", verifyAccessToken, localFileUpload.single("c
 router.post("/change-password", verifyAccessToken, changeUserPassword);
 router.delete("/delete-user", verifyAccessToken, deleteUser);
 router.get("/watch-history", verifyAccessToken, getWatchHistory);
-router.get("/channel-details/:username", verifyAccessToken, getUserChannelDetails);
+router.get("/channel-details/:userId", verifyAccessToken, getUserChannelDetails);
 
 
 router.post("/login", loginUser);

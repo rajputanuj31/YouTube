@@ -37,7 +37,6 @@ export default function VideoPage() {
           }
           const data = await response.json()
           setVideoOwner(data.data)
-          console.log(data)
         } catch (error) {
           setError((error as Error).message)
         }

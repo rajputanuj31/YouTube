@@ -4,13 +4,13 @@ import Image from "next/image"
 import { useSelector } from "react-redux"
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 
 export default function Profile() {
   const router = useRouter()
   const { error, loading } = useSelector((state: any) => state.user)
   const currentUser = useSelector((state: any) => state.user.currentUser?.data.user)
-
+  const { id } = useParams()
   const [isClient, setIsClient] = useState(false)
   const [videos, setVideos] = useState<any[]>([])
   const [channelDetails, setChannelDetails] = useState<any>(null)
@@ -33,7 +33,7 @@ export default function Profile() {
     const fetchChannelDetails = async () => {
       if (currentUser) {
         try {
-          const response = await fetch(`/api/v1/users/channel-details/${currentUser.username}`)
+            const response = await fetch(`/api/v1/users/channel-details/${id}`)
           if (!response.ok) {
             throw new Error('Failed to fetch user')
           }
@@ -49,7 +49,7 @@ export default function Profile() {
     const fetchVideos = async () => {
       if (currentUser) {
         try {
-          const response = await fetch(`/api/v1/videos/get-video-by-user-id/${currentUser._id}`)
+          const response = await fetch(`/api/v1/videos/get-video-by-user-id/${id}`)
           if (!response.ok) {
             throw new Error('Failed to fetch videos')
           }
@@ -103,9 +103,9 @@ export default function Profile() {
                   <div className="flex flex-col sm:flex-row items-center justify-between">
                     <div className="flex flex-col sm:flex-row items-center">
                       <div className="mb-6 sm:mb-0 sm:mr-8">
-                        {currentUser.avatar ? (
+                        {channelDetails?.avatar ? (
                           <img
-                            src={currentUser.avatar}
+                            src={channelDetails.avatar}
                             alt="Avatar"
                             className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-2 border-black"
                           />
@@ -120,8 +120,8 @@ export default function Profile() {
                         )}
                       </div>
                       <div className="text-center sm:text-left">
-                        <h1 className="text-3xl sm:text-4xl font-bold text-white ">{currentUser.fullName}</h1>
-                        <p className="ml-1 text-gray-500">@{currentUser.username} • {channelDetails?.totalSubscribers || 0} subscribers • {videos.length} videos</p>
+                        <h1 className="text-3xl sm:text-4xl font-bold text-white ">{channelDetails?.fullName}</h1>
+                        <p className="ml-1 text-gray-500">@{channelDetails?.username} • {channelDetails?.totalSubscribers || 0} subscribers • {videos.length} videos</p>
                       </div>
                     </div>
                     <div className="mt-4 sm:mt-0">
