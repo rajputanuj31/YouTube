@@ -1,13 +1,22 @@
 import React from 'react';
 import { FaHome, FaBolt, FaYoutube, FaBook, FaHistory, FaVideo, FaClock, FaCut, FaChevronDown, FaUser } from 'react-icons/fa';
+import Link from 'next/link';
 
 const Sidebar = () => {
   return (
     <nav className="fixed top-16 left-0 h-full w-64 bg-black p-6 text-white z-10">
       <ul className="space-y-4">
-        <li className="hover:bg-gray-800 p-2 rounded transition-colors flex items-center"><FaHome className="mr-2" /> Home</li>
+        <li className="hover:bg-gray-800 p-2 rounded transition-colors">
+          <Link href="/" className="flex items-center">
+            <FaHome className="mr-2" /> Home
+          </Link>
+        </li>
         <li className="hover:bg-gray-800 p-2 rounded transition-colors flex items-center"><FaBolt className="mr-2" /> Shorts</li>
-        <li className="hover:bg-gray-800 p-2 rounded transition-colors flex items-center"><FaYoutube className="mr-2" /> Subscriptions</li>
+        <li className="hover:bg-gray-800 p-2 rounded transition-colors">
+          <Link href="/subscriptions" className="flex items-center">
+            <FaYoutube className="mr-2" /> Subscriptions
+          </Link>
+        </li>
         <li className="hover:bg-gray-800 p-2 rounded transition-colors flex items-center"><FaBook className="mr-2" /> Library</li>
         <li className="hover:bg-gray-800 p-2 rounded transition-colors flex items-center"><FaHistory className="mr-2" /> History</li>
         <li className="hover:bg-gray-800 p-2 rounded transition-colors flex items-center"><FaVideo className="mr-2" /> Your videos</li>

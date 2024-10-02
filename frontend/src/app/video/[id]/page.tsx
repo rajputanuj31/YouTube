@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { FaThumbsUp, FaThumbsDown, FaDownload, FaShare } from 'react-icons/fa'
+import { useSelector } from "react-redux"
 
 export default function VideoPage() {
   const params = useParams()
@@ -12,6 +13,9 @@ export default function VideoPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [videoOwner, setVideoOwner] = useState<any>(null)
+  const [isSubscribed, setIsSubscribed] = useState(false)
+  const currentUser = useSelector((state: any) => state.user.currentUser?.data.user)
+
   useEffect(() => {
     if (id) {
       const fetchVideo = async () => {
@@ -37,6 +41,7 @@ export default function VideoPage() {
           }
           const data = await response.json()
           setVideoOwner(data.data)
+          setIsSubscribed(data.data.isSubscribed)
         } catch (error) {
           setError((error as Error).message)
         }
@@ -65,6 +70,29 @@ export default function VideoPage() {
     return <div className="h-[calc(100vh-64px)] flex items-center justify-center">Video not found</div>
   }
 
+  const toggleSubscribe = async () => {
+    try {
+      const response = await fetch(`/api/v1/subscription/toggle-subscription/${videoOwner._id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      if (!response.ok) {
+        throw new Error('Failed to toggle subscribe')
+      }
+      const data = await response.json()
+      setIsSubscribed(data.data.isSubscribed)
+      setVideoOwner((prevOwner:any) => ({
+        ...prevOwner,
+        totalSubscribers: data.data.isSubscribed
+          ? prevOwner.totalSubscribers + 1
+          : prevOwner.totalSubscribers - 1
+      }))
+    } catch (error) {
+      console.error('Failed to toggle subscribe', error)
+    }
+  }
 
   return (
     <div className="flex w-full h-screen bg-black pt-[69px]">
@@ -91,8 +119,17 @@ export default function VideoPage() {
               <p className="text-white text-sm font-bold">{videoOwner?.fullName}</p>
               <p className="text-white text-xs">{videoOwner?.totalSubscribers} subscribers</p>
             </div>
-            {videoOwner && !videoOwner.isSubscribed && (
-              <button className="ml-4 mt-2 bg-white text-black px-6 py-2 rounded-full hover:bg-gray-200 transition-colors duration-200">Subscribe</button>
+            {videoOwner && currentUser && videoOwner._id !== currentUser._id && (
+              <button 
+                className={`ml-4 mt-2 px-6 py-2 rounded-full transition-colors duration-200 ${
+                  isSubscribed 
+                    ? 'bg-gray-500 text-white hover:bg-gray-600' 
+                    : 'bg-white text-black hover:bg-gray-200'
+                }`}
+                onClick={toggleSubscribe}
+              >
+                {isSubscribed ? 'Subscribed' : 'Subscribe'}
+              </button>
             )}
           </div>
           <div className="flex items-center space-x-3 mb-2">

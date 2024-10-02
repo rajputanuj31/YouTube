@@ -60,7 +60,7 @@ const UploadVideo = () => {
 
       if (response.status === 201) {
         console.log('Video uploaded successfully');
-        router.push('/profile');
+        router.push(`/profile/${response.data.data.owner}`);
       } else {
         throw new Error('Failed to upload video');
       }

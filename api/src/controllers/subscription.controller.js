@@ -85,9 +85,34 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
             }
         },
         {
+            $lookup: {
+                from: "subscriptions",
+                localField: "channel",
+                foreignField: "channel",
+                as: "subscribers"
+            }
+        },
+        {
+            $addFields: {
+                totalSubscribers: { $size: "$subscribers" },
+                isSubscribed: {
+                    $cond: {
+                        if: { $eq: ["$subscriber", new mongoose.Types.ObjectId(subscriberId)] },
+                        then: true,
+                        else: false
+                    }
+                }
+            }
+        },
+        {
             $project: {
                 _id: 1,
-                channel: 1
+                channel: 1,
+                channelDetails: {
+                    $arrayElemAt: ["$channelDetails", 0]
+                },
+                isSubscribed: 1,
+                totalSubscribers: 1
             }
         }
     ])
