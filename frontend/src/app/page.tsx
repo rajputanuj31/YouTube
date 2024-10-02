@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import Navbar from "../components/Navbar";
 import Sidebar from "../components/sideBar";
 import Link from "next/link";
 
@@ -26,7 +25,9 @@ export default function Home() {
         throw new Error('Failed to fetch videos');
       }
       const data = await response.json();
-      setVideos(data.data.videos);
+      // Shuffle the videos array
+      const shuffledVideos = data.data.videos.sort(() => Math.random() - 0.5);
+      setVideos(shuffledVideos);
       setTotalPages(data.data.totalPages);
     } catch (error) {
       console.error('Error fetching videos:', error);
@@ -50,7 +51,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar toggleSidebar={toggleSidebar} />
       <div className="flex flex-1 bg-black pt-16">
         {isSidebarVisible && <Sidebar />}
         <main className={`flex-1 p-6 transition-all duration-300 ${isSidebarVisible ? 'ml-64' : ''}`}>

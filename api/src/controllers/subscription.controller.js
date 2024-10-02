@@ -112,7 +112,7 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
                     $arrayElemAt: ["$channelDetails", 0]
                 },
                 isSubscribed: 1,
-                totalSubscribers: 1
+                totalSubscribers: 1,
             }
         }
     ])
