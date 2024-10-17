@@ -53,7 +53,7 @@ const Sidebar = () => {
         <li className="hover:bg-gray-800 p-2 rounded transition-colors flex items-center"><FaBook className="mr-2" /> Library</li>
         <li className="hover:bg-gray-800 p-2 rounded transition-colors flex items-center"><FaHistory className="mr-2" /> History</li>
         <li className="hover:bg-gray-800 p-2 rounded transition-colors flex items-center"><FaVideo className="mr-2" /> 
-        <Link  href={`/profile/${currentUser._id}`} className="flex items-center">
+        <Link  href={`/profile/${currentUser?._id}`} className="flex items-center">
         Your videos
         </Link>
        

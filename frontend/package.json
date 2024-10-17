@@ -16,6 +16,7 @@
     "next": "latest",
     "postcss": "^8.4.47",
     "react": "latest",
+    "react-bootstrap": "^2.10.5",
     "react-dom": "latest",
     "react-icons": "^4.2.0",
     "react-redux": "^9.1.2",

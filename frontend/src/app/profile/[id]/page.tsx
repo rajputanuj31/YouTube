@@ -5,6 +5,7 @@ import { useSelector } from "react-redux"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter, useParams } from "next/navigation"
+import { FaTimes } from 'react-icons/fa'; // Importing the cross icon
 
 export default function Profile() {
   const router = useRouter()
@@ -14,6 +15,13 @@ export default function Profile() {
   const [isClient, setIsClient] = useState(false)
   const [videos, setVideos] = useState<any[]>([])
   const [channelDetails, setChannelDetails] = useState<any>(null)
+  const [showEdits, setShowEdits] = useState(false);
+  const [formData, setFormData] = useState({
+    username: '',
+    fullName: '',
+    email: ''
+  });
+
   const getTimeAgo = (date: string) => {
     const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
     let interval = seconds / 31536000;
@@ -28,6 +36,8 @@ export default function Profile() {
     if (interval > 1) return Math.floor(interval) + " minutes ago";
     return Math.floor(seconds) + " seconds ago";
   };
+
+  
   useEffect(() => {
     setIsClient(true)
     const fetchChannelDetails = async () => {
@@ -39,6 +49,11 @@ export default function Profile() {
           }
           const data = await response.json()
           setChannelDetails(data.data)
+          setFormData({
+            username: data.data.username,
+            fullName: data.data.fullName,
+            email: currentUser.email // Assuming email is part of currentUser
+          });
         } catch (error) {
           console.error(error)
         }
@@ -62,6 +77,37 @@ export default function Profile() {
     }
     fetchVideos()
   }, [currentUser])
+  
+  const handleEditProfileClick = () => {
+       setShowEdits(!showEdits)
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleUpdateProfile = async () => {
+    if (currentUser) {
+      try {
+        const response = await fetch(`/api/v1/users/update-account-details`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentUser.token}` // Assuming you have a token for authorization
+          },
+          body: JSON.stringify(formData) // Sending the updated form data
+        });
+        if (!response.ok) {
+          throw new Error('Failed to update profile');
+        }
+        const data = await response.json();
+        setShowEdits(false);
+      } catch (error) {
+        console.error("Error updating profile:", error);
+      }
+    }
+  };
 
   if (!isClient) {
     return null // Return null on the server-side
@@ -125,12 +171,14 @@ export default function Profile() {
                       </div>
                     </div>
                     <div className="mt-4 sm:mt-0">
-                      <button 
-                        className="border-2 border-white rounded-full hover:bg-gray-500 text-white font-bold py-2 px-4"
-                        onClick={() => router.push('/video/uploadVideo')}
-                      >
-                        Upload Video
-                      </button>
+                      {currentUser._id === id && (
+                        <button 
+                          className="border-2 border-white rounded-full hover:bg-gray-500 text-white font-bold py-2 px-4"
+                          onClick={handleEditProfileClick}
+                        >
+                          Edit Profile
+                        </button>
+                      )}
                     </div>
                   </div>
                   <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -143,6 +191,65 @@ export default function Profile() {
             </div>
           </div>
         </div>
+
+        {/* Edit Profile Form Popup */}
+        {showEdits && (
+          <div className="fixed inset-0 flex items-center justify-center ml-10 bg-black bg-opacity-70 z-50">
+            <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-96 relative">
+              <h2 className="text-2xl font-bold mb-2">Edit Profile</h2>
+              <button 
+                className="absolute top-2 right-2 text-gray-400 hover:text-white"
+                onClick={() => setShowEdits(false)} // Close the popup
+              >
+                <FaTimes size={20} />
+              </button>
+              <form onSubmit={(e) => { e.preventDefault(); handleUpdateProfile(); }} className="space-y-4">
+                <div>
+                  <label htmlFor="username" className="block text-sm font-medium text-gray-300">Username</label>
+                  <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="fullName" className="block text-sm font-medium text-gray-300">Full Name</label>
+                  <input
+                    type="text"
+                    id="fullName"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-300">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 ease-in-out"
+                >
+                  Update
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* Videos Section */}
         <div className="w-full ">
