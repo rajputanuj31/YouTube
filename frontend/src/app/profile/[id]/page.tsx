@@ -94,9 +94,9 @@ export default function Profile() {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${currentUser.token}` // Assuming you have a token for authorization
+            'Authorization': `Bearer ${currentUser.token}` 
           },
-          body: JSON.stringify(formData) // Sending the updated form data
+          body: JSON.stringify(formData) 
         });
         if (!response.ok) {
           throw new Error('Failed to update profile');

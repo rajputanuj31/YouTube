@@ -4,12 +4,16 @@ import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { FaThumbsUp, FaThumbsDown, FaDownload, FaShare } from 'react-icons/fa'
 import { useSelector } from "react-redux"
+import Link from 'next/link'
+import Image from 'next/image'
+import { getTimeAgo } from "@/app/utills/getTimeAgo"
 
 export default function VideoPage() {
   const params = useParams()
   const router = useRouter()
   const id = params.id as string
   const [video, setVideo] = useState<any>(null)
+  const [videos, setVideos] = useState<any[]>([]) // Changed to an array
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [videoOwner, setVideoOwner] = useState<any>(null)
@@ -33,6 +37,22 @@ export default function VideoPage() {
           setLoading(false)
         }
       }
+      const fetchVideos = async () => {
+        try {
+          const response = await fetch(`/api/v1/videos/get-all-videos?page=1&limit=12`); // Removed currentPage
+          if (!response.ok) {
+            throw new Error('Failed to fetch videos');
+          }
+          const data = await response.json();
+          // Shuffle the videos array
+          const shuffledVideos = data.data.videos.sort(() => Math.random() - 0.5);
+          console.log(shuffledVideos);
+          
+          setVideos(shuffledVideos);
+        } catch (error) {
+          console.error('Error fetching videos:', error);
+        }
+      };
       const fetchVideoOwner = async () => {
         try {
           const response = await fetch(`/api/v1/videos/get-video-owner/${id}`)
@@ -48,9 +68,10 @@ export default function VideoPage() {
       }
 
       fetchVideo()
+      fetchVideos()
       fetchVideoOwner()
     }
-  }, [id])
+  }, [id]) // Removed currentPage from dependencies
 
   const handleAvatarClick = () => {
     if (videoOwner && videoOwner._id) {
@@ -97,8 +118,8 @@ export default function VideoPage() {
   return (
     <div className="flex w-full h-screen bg-black pt-[69px]">
       {/* Video Player */}
-      <div className="ml-5 mt-5 w-[1000px] bg-black shadow-lg rounded-lg overflow-hidden">
-        <div className="h-[550px]">
+      <div className="ml-5 mt-5 w-[800px] bg-black shadow-lg rounded-lg overflow-hidden">
+        <div className="h-[500px]">
           <video controls className="w-full h-full object-cover">
             <source src={video.videoFile} type="video/mp4" />
             Your browser does not support the video tag.
@@ -146,6 +167,33 @@ export default function VideoPage() {
               <FaShare className="mr-1" /> Share
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* Videos List */}
+      <div className="ml-5 mt-5 flex-1">
+        <h2 className="text-white text-xl font-bold mb-4">Related Videos</h2>
+        <div className="flex flex-col gap-4">
+          {videos.map((relatedVideo: any) => (
+            <Link href={`/video/${relatedVideo._id}`} key={relatedVideo._id}>
+              <div className="bg-black rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow hover:border hover:border-gray-600 flex">
+                <div className="relative aspect-video w-1/2">
+                  <Image 
+                    src={relatedVideo.thumbnail || "/default-thumbnail.jpg"} 
+                    alt={relatedVideo.title} 
+                    layout="fill" 
+                    objectFit="cover"
+                    unoptimized={true}
+                  />
+                  <p className="text-white text-sm absolute bottom-2 right-2 bg-black bg-opacity-50 p-1 rounded-lg">{(parseFloat(relatedVideo.duration) / 60).toFixed(2)} </p>
+                </div>
+                <div className="p-4 w-1/2 flex flex-col justify-center">
+                  <h3 className="text-white font-semibold mb-2 line-clamp-2">{relatedVideo.title}</h3>
+                  <p className="text-gray-400 text-sm">{relatedVideo.views} views • {getTimeAgo(relatedVideo.createdAt)}</p>
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
     </div>

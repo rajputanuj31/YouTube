@@ -33,6 +33,10 @@ const videoSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "User",
     },
+    ownerUsername:{
+        type: String,
+        required: true
+    }
 }, {timestamps: true});
 
 videoSchema.plugin(mongooseAggregatePaginate);

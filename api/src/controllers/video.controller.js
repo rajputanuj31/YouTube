@@ -44,7 +44,8 @@ const uploadVideo = asyncHandler(async (req, res) => {
         duration: video.duration,
         views: 0,
         isPublished: true,
-        owner: user._id
+        owner: user._id,
+        ownerUsername: user.username
     })
     if(!newVideo){
         throw new ApiError(500, "Failed to create video");

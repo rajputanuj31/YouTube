@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Sidebar from "../components/sideBar";
 import Link from "next/link";
+import { getTimeAgo } from "./utills/getTimeAgo";
 
 export default function Home() {
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
@@ -34,21 +35,6 @@ export default function Home() {
     }
   };
 
-  const getTimeAgo = (date: string) => {
-    const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
-    let interval = seconds / 31536000;
-    if (interval > 1) return Math.floor(interval) + " years ago";
-    interval = seconds / 2592000;
-    if (interval > 1) return Math.floor(interval) + " months ago";
-    interval = seconds / 86400;
-    if (interval > 1) return Math.floor(interval) + " days ago";
-    interval = seconds / 3600;
-    if (interval > 1) return Math.floor(interval) + " hours ago";
-    interval = seconds / 60;
-    if (interval > 1) return Math.floor(interval) + " minutes ago";
-    return Math.floor(seconds) + " seconds ago";
-  };
-
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex flex-1 bg-black pt-16">
@@ -75,7 +61,7 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {videos.map((video: any) => (
               <Link href={`/video/${video._id}`} key={video._id}>
-                <div className="bg-black rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow hover:border hover:border-gray-600">
+                <div className="bg-black rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow hover:border hover:border-gray-600 w-64 h-60"> {/* Fixed size for video window */}
                   <div className="relative aspect-video">
                     <Image 
                       src={video.thumbnail || "/default-thumbnail.jpg"} 
@@ -85,10 +71,10 @@ export default function Home() {
                       unoptimized={true}
                     />
                     <p className="text-white text-sm absolute bottom-2 right-2 bg-black bg-opacity-50 p-1 rounded-lg">{(parseFloat(video.duration) / 60).toFixed(2)} </p>
-
                   </div>
                   <div className="p-4">
-                    <h3 className="text-white font-semibold mb-2 line-clamp-2">{video.title}</h3>
+                    <h3 className="text-white font-semibold mb-1 line-clamp-2 overflow-hidden">{video.title}</h3> 
+                    <p className="text-gray-400 text-sm">{video.ownerUsername}</p>
                     <p className="text-gray-400 text-sm">{video.views} views • {getTimeAgo(video.createdAt)}</p>
                   </div>
                 </div>

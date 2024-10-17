@@ -28,7 +28,7 @@ const Sidebar = () => {
         }
         const data = await response.json();
         setSubscribedChannels(data.data.subscribedChannels);
-        
+
       } catch (error) {
         console.error('Error fetching subscribed channels:', error);
       }
@@ -52,11 +52,11 @@ const Sidebar = () => {
         </li>
         <li className="hover:bg-gray-800 p-2 rounded transition-colors flex items-center"><FaBook className="mr-2" /> Library</li>
         <li className="hover:bg-gray-800 p-2 rounded transition-colors flex items-center"><FaHistory className="mr-2" /> History</li>
-        <li className="hover:bg-gray-800 p-2 rounded transition-colors flex items-center"><FaVideo className="mr-2" /> 
-        <Link  href={`/profile/${currentUser?._id}`} className="flex items-center">
-        Your videos
-        </Link>
-       
+        <li className="hover:bg-gray-800 p-2 rounded transition-colors flex items-center"><FaVideo className="mr-2" />
+          <Link href={`/profile/${currentUser?._id}`} className="flex items-center">
+            Your videos
+          </Link>
+
         </li>
         <li className="hover:bg-gray-800 p-2 rounded transition-colors flex items-center"><FaClock className="mr-2" /> Watch later</li>
         <li className="hover:bg-gray-800 p-2 rounded transition-colors flex items-center"><FaCut className="mr-2" /> Your clips</li>
@@ -70,12 +70,12 @@ const Sidebar = () => {
         </h3>
         <ul className="space-y-2">
           {subscribedChannels.map(channel => (
-            <li key={channel._id} className="hover:bg-gray-800 p-2 rounded transition-colors flex items-center">
-              <img src={channel.channelDetails?.avatar || ''} alt="Channel Avatar" className="mr-2 w-6 h-6 rounded-full" />
-              <Link href={`/profile/${channel.channel}`} className="text-white">
+            <Link href={`/profile/${channel.channel}`} className="text-white">
+              <li key={channel._id} className="hover:bg-gray-800 p-2 rounded transition-colors flex items-center">
+                <img src={channel.channelDetails?.avatar || ''} alt="Channel Avatar" className="mr-2 w-6 h-6 rounded-full" />
                 {channel.channelDetails?.fullName || 'Unknown Channel'}
-              </Link>
-            </li>
+              </li>
+            </Link>
           ))}
         </ul>
       </div>
