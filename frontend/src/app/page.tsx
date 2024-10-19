@@ -1,19 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import Sidebar from "../components/sideBar";
 import Link from "next/link";
 import { getTimeAgo } from "./utils/getTimeAgo";
 
 export default function Home() {
-  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [videos, setVideos] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const toggleSidebar = () => {
-    setIsSidebarVisible(!isSidebarVisible);
-  };
 
   useEffect(() => {
     fetchVideos();
@@ -38,8 +33,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex flex-1 bg-black pt-16">
-        {isSidebarVisible && <Sidebar />}
-        <main className={`flex-1 p-6 transition-all duration-300 ${isSidebarVisible ? 'ml-64' : ''}`}>
+        <main className={`flex-1 p-6 transition-all duration-300 `}>
           {/* Top navigation */}
           <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
             <h2 className="text-xl font-bold text-white mb-4 sm:mb-0">All</h2>

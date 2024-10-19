@@ -9,7 +9,6 @@ import { FaTimes, FaEllipsisV } from 'react-icons/fa';
 import { getTimeAgo } from "@/app/utils/getTimeAgo"
 
 export default function Profile() {
-  const router = useRouter()
   const { error, loading } = useSelector((state: any) => state.user)
   const currentUser = useSelector((state: any) => state.user.currentUser?.data.user)
   const { id } = useParams()
