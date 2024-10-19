@@ -71,7 +71,7 @@ const deleteComment = asyncHandler(async (req, res) => {
 
 const getCommentsByVideoId = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
-    const {page = 1, limit = 10, sortBy = "createdAt", sortType = "desc"} = req.query
+    const {page = 1, limit = 10, sortBy = "createdAt", sortType = "latest"} = req.query
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
 
