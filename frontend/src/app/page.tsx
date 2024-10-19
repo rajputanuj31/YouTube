@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Sidebar from "../components/sideBar";
 import Link from "next/link";
-import { getTimeAgo } from "./utills/getTimeAgo";
+import { getTimeAgo } from "./utils/getTimeAgo";
 
 export default function Home() {
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);

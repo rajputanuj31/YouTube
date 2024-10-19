@@ -5,7 +5,8 @@ import { useSelector } from "react-redux"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter, useParams } from "next/navigation"
-import { FaTimes } from 'react-icons/fa'; // Importing the cross icon
+import { FaTimes, FaEllipsisV } from 'react-icons/fa';
+import { getTimeAgo } from "@/app/utils/getTimeAgo"
 
 export default function Profile() {
   const router = useRouter()
@@ -22,28 +23,13 @@ export default function Profile() {
     email: ''
   });
 
-  const getTimeAgo = (date: string) => {
-    const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
-    let interval = seconds / 31536000;
-    if (interval > 1) return Math.floor(interval) + " years ago";
-    interval = seconds / 2592000;
-    if (interval > 1) return Math.floor(interval) + " months ago";
-    interval = seconds / 86400;
-    if (interval > 1) return Math.floor(interval) + " days ago";
-    interval = seconds / 3600;
-    if (interval > 1) return Math.floor(interval) + " hours ago";
-    interval = seconds / 60;
-    if (interval > 1) return Math.floor(interval) + " minutes ago";
-    return Math.floor(seconds) + " seconds ago";
-  };
 
-  
   useEffect(() => {
     setIsClient(true)
     const fetchChannelDetails = async () => {
       if (currentUser) {
         try {
-            const response = await fetch(`/api/v1/users/channel-details/${id}`)
+          const response = await fetch(`/api/v1/users/channel-details/${id}`)
           if (!response.ok) {
             throw new Error('Failed to fetch user')
           }
@@ -77,9 +63,9 @@ export default function Profile() {
     }
     fetchVideos()
   }, [currentUser])
-  
+
   const handleEditProfileClick = () => {
-       setShowEdits(!showEdits)
+    setShowEdits(!showEdits)
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,9 +80,9 @@ export default function Profile() {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${currentUser.token}` 
+            'Authorization': `Bearer ${currentUser.token}`
           },
-          body: JSON.stringify(formData) 
+          body: JSON.stringify(formData)
         });
         if (!response.ok) {
           throw new Error('Failed to update profile');
@@ -145,49 +131,49 @@ export default function Profile() {
         <div className="w-full flex flex-col relative mt-12">
           <div className="relative z-10 flex-grow w-full flex items-center justify-center -mt-16">
             <div className="w-full px-4 sm:px-6 lg:px-8">
-                <div className="px-6 mt-3">
-                  <div className="flex flex-col sm:flex-row items-center justify-between">
-                    <div className="flex flex-col sm:flex-row items-center">
-                      <div className="mb-6 sm:mb-0 sm:mr-8">
-                        {channelDetails?.avatar ? (
-                          <img
-                            src={channelDetails.avatar}
-                            alt="Avatar"
-                            className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-2 border-black"
-                          />
-                        ) : (
-                          <Image
-                            src="/default-avatar.jpg"
-                            alt="Default Avatar"
-                            width={160}
-                            height={160}
-                            className="rounded-full border-4 border-white"
-                          />
-                        )}
-                      </div>
-                      <div className="text-center sm:text-left">
-                        <h1 className="text-3xl sm:text-4xl font-bold text-white ">{channelDetails?.fullName}</h1>
-                        <p className="ml-1 text-gray-500">@{channelDetails?.username} • {channelDetails?.totalSubscribers || 0} subscribers • {videos.length} videos</p>
-                      </div>
-                    </div>
-                    <div className="mt-4 sm:mt-0">
-                      {currentUser._id === id && (
-                        <button 
-                          className="border-2 border-white rounded-full hover:bg-gray-500 text-white font-bold py-2 px-4"
-                          onClick={handleEditProfileClick}
-                        >
-                          Edit Profile
-                        </button>
+              <div className="px-6 mt-3">
+                <div className="flex flex-col sm:flex-row items-center justify-between">
+                  <div className="flex flex-col sm:flex-row items-center">
+                    <div className="mb-6 sm:mb-0 sm:mr-8">
+                      {channelDetails?.avatar ? (
+                        <img
+                          src={channelDetails.avatar}
+                          alt="Avatar"
+                          className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-2 border-black"
+                        />
+                      ) : (
+                        <Image
+                          src="/default-avatar.jpg"
+                          alt="Default Avatar"
+                          width={160}
+                          height={160}
+                          className="rounded-full border-4 border-white"
+                        />
                       )}
                     </div>
-                  </div>
-                  <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div>
-                      <p className="text-white ">Member since: {new Date(currentUser.createdAt).toLocaleDateString()}</p>
-                      <p className="text-white ">Last updated: {new Date(currentUser.updatedAt).toLocaleDateString()}</p>
+                    <div className="text-center sm:text-left">
+                      <h1 className="text-3xl sm:text-4xl font-bold text-white ">{channelDetails?.fullName}</h1>
+                      <p className="ml-1 text-gray-500">@{channelDetails?.username} • {channelDetails?.totalSubscribers || 0} subscribers • {videos.length} videos</p>
                     </div>
                   </div>
+                  <div className="mt-4 sm:mt-0">
+                    {currentUser._id === id && (
+                      <button
+                        className="border-2 border-white rounded-full hover:bg-gray-500 text-white font-bold py-2 px-4"
+                        onClick={handleEditProfileClick}
+                      >
+                        Edit Profile
+                      </button>
+                    )}
+                  </div>
                 </div>
+                <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-white ">Member since: {new Date(currentUser.createdAt).toLocaleDateString()}</p>
+                    <p className="text-white ">Last updated: {new Date(currentUser.updatedAt).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -197,7 +183,7 @@ export default function Profile() {
           <div className="fixed inset-0 flex items-center justify-center ml-10 bg-black bg-opacity-70 z-50">
             <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-96 relative">
               <h2 className="text-2xl font-bold mb-2">Edit Profile</h2>
-              <button 
+              <button
                 className="absolute top-2 right-2 text-gray-400 hover:text-white"
                 onClick={() => setShowEdits(false)} // Close the popup
               >
@@ -270,11 +256,12 @@ export default function Profile() {
                         />
                         <p className="text-white text-sm absolute bottom-2 right-2 bg-black bg-opacity-50 p-1 rounded-lg">{(parseFloat(video.duration) / 60).toFixed(2)} </p>
                       </div>
-                      <div className="p-2 h-1/3 flex flex-col justify-start">
-                        <h3 className="text-md font-semibold text-white truncate">{video.title}</h3>
-                        <div className="flex justify-between items-center text-gray-400 text-xs">
+                      <div className="flex justify-between items-center mt-1">
+                        <h3 className="h-1/3 flex flex-col justify-start text-md font-semibold text-white truncate">{video.title}</h3>
+                        <FaEllipsisV className="text-gray-400 hover:text-white" size={20} />
+                      </div>
+                      <div className="flex justify-between items-center text-gray-400 text-xs">
                         <p className="text-gray-400 text-sm">{video.views} views • {getTimeAgo(video.createdAt)}</p>
-                        </div>
                       </div>
                     </div>
                   </Link>

@@ -2,7 +2,7 @@ import React from 'react'
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from 'next/image';
-import { getTimeAgo } from '@/app/utills/getTimeAgo';
+import { getTimeAgo } from '@/app/utils/getTimeAgo';
 
 const SuggestionVideos = () => {
     const [videos, setVideos] = useState([]);
