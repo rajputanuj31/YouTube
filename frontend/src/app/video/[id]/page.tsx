@@ -102,9 +102,9 @@ export default function VideoPage() {
   return (
     <div className="flex w-full h-full bg-black pt-[69px]">
       {/* Video Player */}
-      <div className="ml-5 mt-5 flex-grow bg-black shadow-lg rounded-lg overflow-hidden"> {/* Dynamic width for video player */}
+      <div className="ml-5 mt-5 flex-grow bg-black shadow-lg rounded-lg overflow-hidden min-w-[800px]"> {/* Dynamic width for video player */}
         <div className="h-[500px]">
-          <video controls className="w-full h-full object-cover">
+          <video controls className="w-full h-full object-cover ">
             <source src={video.videoFile} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
@@ -136,7 +136,7 @@ export default function VideoPage() {
               </button>
             )}
           </div>
-          <div className="flex items-center space-x-3 mb-2">
+          <div className="flex items-center space-x-3 ">
             <button className="text-white flex items-center bg-gray-700 rounded-full px-4 py-2 hover:bg-gray-600 transition-colors duration-200">
               <FaThumbsUp className="mr-1" /> {video.likes} Like
             </button>
@@ -158,7 +158,7 @@ export default function VideoPage() {
         <Comments setComments={setComments} currentUser={currentUser} videoId={id} /> {/* Use the Comments component */}
       </div>
 
-      <div className="w-[480px]"> {/* Fixed width for the right section */}
+      <div className="w-full max-w-[480px]"> {/* Dynamic width with a max width for the right section */}
         <SuggestionVideos />
       </div>
     </div>

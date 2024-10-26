@@ -20,7 +20,6 @@ const UploadVideo = () => {
     thumbnail: null,
   });
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -39,7 +38,6 @@ const UploadVideo = () => {
     e.preventDefault();
     setIsUploading(true);
     setError(null);
-    setUploadProgress(0);
 
     try {
       const formData = new FormData();
@@ -51,10 +49,6 @@ const UploadVideo = () => {
       const response = await axios.post('/api/v1/videos/upload-video', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-        },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1));
-          setUploadProgress(percentCompleted);
         },
       });
 
@@ -125,17 +119,12 @@ const UploadVideo = () => {
             />
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
-          {isUploading && (
-            <div className="w-full bg-gray-700 rounded-full h-2.5 mb-4">
-              <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${uploadProgress}%` }}></div>
-            </div>
-          )}
           <button
             type="submit"
             disabled={isUploading}
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition duration-200 ease-in-out disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            {isUploading ? `Uploading... ${uploadProgress}%` : 'Upload Video'}
+            {isUploading ? 'Uploading...' : 'Upload Video'}
           </button>
         </form>
       </div>
