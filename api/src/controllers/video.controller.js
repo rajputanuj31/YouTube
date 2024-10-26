@@ -128,9 +128,12 @@ const getAllVideos = asyncHandler(async (req, res) => {
     if(userId){
         filterConditions.owner = userId;
     }
+
+    // Add condition to filter out videos that are not published
+    filterConditions.isPublished = true;
+
     const sortConditions = {};
     sortConditions[sortBy] = sortType === 'asc' ? 1 : -1;
-
 
     const videos = await Video.find(filterConditions)
     .sort(sortConditions)

@@ -4,7 +4,7 @@ import Image from "next/image"
 import { useSelector } from "react-redux"
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter, useParams } from "next/navigation"
+import { useParams } from "next/navigation"
 import { FaTimes, FaEllipsisV, FaTrash, FaEdit, FaShareAlt, FaPlus } from 'react-icons/fa'; // Added FaShareAlt and FaPlus
 import { getTimeAgo } from "@/app/utils/getTimeAgo"
 
@@ -22,6 +22,12 @@ export default function Profile() {
     fullName: '',
     email: ''
   });
+  const [videoEditData, setVideoEditData] = useState<any>({
+    title: '',
+    description: '',
+    isPublished: false
+  });
+  const [showVideoEdit, setShowVideoEdit] = useState(false);
 
   useEffect(() => {
     setIsClient(true)
@@ -94,6 +100,35 @@ export default function Profile() {
     }
   };
 
+  const handleVideoEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setVideoEditData((prev: { title: string; description: string; isPublished: boolean }) => ({ ...prev, [name]: value }));
+  };
+
+  const handleUpdateVideo = async () => {
+    if (popupVideoId) {
+      try {
+        const response = await fetch(`/api/v1/videos/update-video/${popupVideoId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentUser.token}`
+          },
+          body: JSON.stringify(videoEditData)
+        });
+        if (!response.ok) {
+          throw new Error('Failed to update video');
+        }
+        const data = await response.json();
+        setShowVideoEdit(false);
+        // Refresh the video list or update the state accordingly
+        setVideos(prev => prev.map(video => video._id === popupVideoId ? { ...video, ...videoEditData } : video));
+      } catch (error) {
+        console.error("Error updating video:", error);
+      }
+    }
+  };
+
   if (!isClient) {
     return null // Return null on the server-side
   }
@@ -138,12 +173,6 @@ export default function Profile() {
     } catch (error) {
       console.error('Error deleting video:', error);
     }
-  };
-  
-  const handleUpdateVideo = (videoId: string) => {
-    // Logic to handle video update
-    console.log('Update video:', videoId);
-    // Implement the update video logic
   };
 
   const handleSaveToPlaylist = (videoId: string) => {
@@ -282,6 +311,65 @@ export default function Profile() {
           </div>
         )}
 
+        {/* Video Edit Form Popup */}
+        {showVideoEdit && (
+          <div className="fixed inset-0 flex items-center justify-center ml-10 bg-black bg-opacity-70 z-50">
+            <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-96 relative">
+              <h2 className="text-2xl font-bold mb-2">Edit Video</h2>
+              <button
+                className="absolute top-2 right-2 text-gray-400 hover:text-white"
+                onClick={() => setShowVideoEdit(false)} // Close the popup
+              >
+                <FaTimes size={20} />
+              </button>
+              <form onSubmit={(e) => { e.preventDefault(); handleUpdateVideo(); }} className="space-y-4">
+                <div>
+                  <label htmlFor="title" className="block text-sm font-medium text-gray-300">Title</label>
+                  <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    value={videoEditData.title}
+                    onChange={handleVideoEditChange}
+                    required
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="description" className="block text-sm font-medium text-gray-300">Description</label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    value={videoEditData.description}
+                    onChange={handleVideoEditChange}
+                    required
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="isPublished" className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="isPublished"
+                      name="isPublished"
+                      checked={videoEditData.isPublished}
+                      onChange={(e) => setVideoEditData((prev: { title: string; description: string; isPublished: boolean }) => ({ ...prev, isPublished: e.target.checked }))}
+                      className="mr-2"
+                    />
+                    Is Published
+                  </label>
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 ease-in-out"
+                >
+                  Update Video
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
         {/* Videos Section */}
         <div className="w-full ">
           <div className="w-full px-4 sm:px-6 lg:px-8">
@@ -332,9 +420,12 @@ export default function Profile() {
                                     className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "
                                     onClick={(e) => {
                                       e.preventDefault();
-                                      if (popupVideoId) {
-                                        handleUpdateVideo(popupVideoId);
-                                      }
+                                      setVideoEditData({
+                                        title: video.title,
+                                        description: video.description,
+                                        isPublished: video.isPublished
+                                      });
+                                      setShowVideoEdit(true);
                                     }}
                                   >
                                     <FaEdit className="mr-2" /> Update
