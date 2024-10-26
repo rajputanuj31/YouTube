@@ -3,12 +3,13 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { getTimeAgo } from "./utils/getTimeAgo";
+import { FaEllipsisV, FaPlus, FaShareAlt } from 'react-icons/fa';
 
 export default function Home() {
   const [videos, setVideos] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
+  const [popupVideoId, setPopupVideoId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchVideos();
@@ -28,6 +29,24 @@ export default function Home() {
     } catch (error) {
       console.error('Error fetching videos:', error);
     }
+  };
+
+  const togglePopup = (videoId: string) => {
+    if (popupVideoId === videoId) {
+      setPopupVideoId(null); // Close if it's the same video
+    } else {
+      setPopupVideoId(videoId); // Open for the specific video
+    }
+  };
+
+  const handleSaveToPlaylist = (videoId: string) => {
+    console.log('Save to playlist:', videoId);
+    // Implement save to playlist logic
+  };
+
+  const handleShareVideo = (videoId: string) => {
+    console.log('Share video:', videoId);
+    // Implement share video logic
   };
 
   return (
@@ -67,9 +86,44 @@ export default function Home() {
                     <p className="text-white text-sm absolute bottom-2 right-2 bg-black bg-opacity-50 p-1 rounded-lg">{(parseFloat(video.duration) / 60).toFixed(2)} </p>
                   </div>
                   <div className="p-4">
-                    <h3 className="text-white font-semibold mb-1 line-clamp-2 overflow-hidden">{video.title}</h3> 
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-white font-semibold mb-1 line-clamp-2 overflow-hidden">{video.title}</h3>
+                      <FaEllipsisV
+                        className="text-gray-400 hover:text-white cursor-pointer"
+                        size={20}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          togglePopup(video._id);                           
+                        }}
+                      />
+                    {/* Popup for video options */}
+                    {popupVideoId === video._id && (
+                      <div className="absolute bg-gray-800 text-white rounded-lg shadow-lg w-40 z-50 ml-10 mt-16"> {/* Added mt-2 for spacing */}
+                        <button
+                          className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleSaveToPlaylist(video._id);
+                          }}
+                        >
+                          <FaPlus className="mr-2" /> Save to Playlist
+                        </button>
+                        <button
+                          className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleShareVideo(video._id);
+                          }}
+                        >
+                          <FaShareAlt className="mr-2" /> Share
+                        </button>
+                      </div>
+                    )}
+                    </div>
                     <p className="text-gray-400 text-sm">{video.ownerUsername}</p>
-                    <p className="text-gray-400 text-sm">{video.views} views • {getTimeAgo(video.createdAt)}</p>
+                    <div className="flex justify-between items-center">
+                      <p className="text-gray-400 text-sm">{video.views} views • {getTimeAgo(video.createdAt)}</p>
+                    </div>
                   </div>
                 </div>
               </Link>

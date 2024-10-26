@@ -5,7 +5,7 @@ import { useSelector } from "react-redux"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter, useParams } from "next/navigation"
-import { FaTimes, FaEllipsisV } from 'react-icons/fa';
+import { FaTimes, FaEllipsisV, FaTrash, FaEdit, FaShareAlt, FaPlus } from 'react-icons/fa'; // Added FaShareAlt and FaPlus
 import { getTimeAgo } from "@/app/utils/getTimeAgo"
 
 export default function Profile() {
@@ -16,12 +16,12 @@ export default function Profile() {
   const [videos, setVideos] = useState<any[]>([])
   const [channelDetails, setChannelDetails] = useState<any>(null)
   const [showEdits, setShowEdits] = useState(false);
+  const [popupVideoId, setPopupVideoId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     username: '',
     fullName: '',
     email: ''
   });
-
 
   useEffect(() => {
     setIsClient(true)
@@ -61,7 +61,7 @@ export default function Profile() {
       }
     }
     fetchVideos()
-  }, [currentUser])
+  }, [currentUser, id]) // Added id to the dependency array
 
   const handleEditProfileClick = () => {
     setShowEdits(!showEdits)
@@ -109,6 +109,52 @@ export default function Profile() {
   if (!currentUser) {
     return <div className="h-1/2 w-full flex items-center justify-center">User not found</div>
   }
+
+  const togglePopup = (videoId: string) => {
+    if (popupVideoId === videoId) {
+      setPopupVideoId(null); // Close if it's the same video
+    } else {
+      setPopupVideoId(videoId); // Open for the specific video
+    }
+  };
+
+  const handleDeleteVideo = async (videoId: string) => {
+    try {
+      const response = await fetch(`/api/v1/videos/delete-video/${videoId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentUser.token}`
+        }
+      });
+      console.log("success");
+      
+      if (response.ok) {
+        // Refresh the video list or remove the deleted video from state
+        setVideos(prev => prev.filter(video => video._id !== videoId));
+      } else {
+        console.error('Failed to delete video');
+      }
+    } catch (error) {
+      console.error('Error deleting video:', error);
+    }
+  };
+  
+  const handleUpdateVideo = (videoId: string) => {
+    // Logic to handle video update
+    console.log('Update video:', videoId);
+    // Implement the update video logic
+  };
+
+  const handleSaveToPlaylist = (videoId: string) => {
+    console.log('Save to playlist:', videoId);
+    // Implement save to playlist logic
+  };
+
+  const handleShareVideo = (videoId: string) => {
+    console.log('Share video:', videoId);
+    // Implement share video logic
+  };
 
   return (
     <div className="w-full min-h-screen bg-black text-white pt-16"> {/* Added pt-16 to account for Navbar height */}
@@ -257,7 +303,69 @@ export default function Profile() {
                       </div>
                       <div className="flex justify-between items-center mt-1">
                         <h3 className="h-1/3 flex flex-col justify-start text-md font-semibold text-white truncate">{video.title}</h3>
-                        <FaEllipsisV className="text-gray-400 hover:text-white" size={20} />
+                        <div className="relative">
+                          <FaEllipsisV
+                            className="text-gray-400 hover:text-white cursor-pointer"
+                            size={20}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              togglePopup(video._id);                           
+                            }}
+                          />
+                          {/* Popup for video options */}
+                          {popupVideoId === video._id && (
+                            <div className="absolute right-3 bottom-1 bg-black text-white rounded-lg shadow-lg w-40 z-50 ">
+                              {currentUser._id === video.owner && ( // Only show delete and update options if the user is the owner
+                                <>
+                                  <button
+                                    className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      if (popupVideoId) {
+                                        handleDeleteVideo(popupVideoId);
+                                      }
+                                    }}
+                                  >
+                                    <FaTrash className="mr-2" /> Delete
+                                  </button>
+                                  <button
+                                    className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      if (popupVideoId) {
+                                        handleUpdateVideo(popupVideoId);
+                                      }
+                                    }}
+                                  >
+                                    <FaEdit className="mr-2" /> Update
+                                  </button>
+                                </>
+                              )}
+                              <button
+                                className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  if (popupVideoId) {
+                                    handleSaveToPlaylist(popupVideoId);
+                                  }
+                                }}
+                              >
+                                <FaPlus className="mr-2" /> Save to Playlist
+                              </button>
+                              <button
+                                className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  if (popupVideoId) {
+                                    handleShareVideo(popupVideoId);
+                                  }
+                                }}
+                              >
+                                <FaShareAlt className="mr-2" /> Share
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                       <div className="flex justify-between items-center text-gray-400 text-xs">
                         <p className="text-gray-400 text-sm">{video.views} views • {getTimeAgo(video.createdAt)}</p>
