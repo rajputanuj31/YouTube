@@ -81,7 +81,7 @@ const Comments: React.FC<CommentsProps> = ({ setComments, currentUser, videoId }
 
   return (
     <div className="bg-black p-4 mt-2 rounded-md"> {/* Comments section */}
-      <h2 className="text-white text-lg font-bold">Comments</h2>
+      <h2 className="text-white text-lg font-bold">Comments ({comments.length})</h2>
       <form onSubmit={handleCommentSubmit} className="mt-2">
         <input
           type="text"

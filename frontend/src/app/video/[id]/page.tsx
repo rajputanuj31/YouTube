@@ -5,7 +5,6 @@ import { useEffect, useState } from "react"
 import { FaThumbsUp, FaThumbsDown, FaDownload, FaShare } from 'react-icons/fa'
 import { useSelector } from "react-redux" // Fixed the import from UseSelector to useSelector
 import SuggestionVideos from "../../../components/SuggestionVideos" // Capitalized the component name
-import { getTimeAgo } from "@/app/utils/getTimeAgo"
 import Comments from "../../../components/Comments"; // Import the Comments component
 
 export default function VideoPage() {
@@ -63,6 +62,29 @@ export default function VideoPage() {
     }
   }
 
+  const handleVideoWatch = async () => {
+    try {
+      const response = await fetch(`/api/v1/videos/update-views/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      if (!response.ok) {
+        throw new Error('Failed to update views')
+      }
+      const data = await response.json();
+      console.log(data);
+      
+      setVideo((prevVideo: any) => ({
+        ...prevVideo,
+        views: data.data.views
+      }))
+    } catch (error) {
+      console.error('Failed to update views', error)
+    }
+  }
+
   if (loading) {
     return <div className="h-[calc(100vh-64px)] flex items-center justify-center">Loading...</div>
   }
@@ -104,7 +126,7 @@ export default function VideoPage() {
       {/* Video Player */}
       <div className="ml-5 mt-5 flex-grow bg-black shadow-lg rounded-lg overflow-hidden min-w-[800px]"> {/* Dynamic width for video player */}
         <div className="h-[500px]">
-          <video controls className="w-full h-full object-cover ">
+          <video controls className="w-full h-full object-cover " onPlay={handleVideoWatch}>
             <source src={video.videoFile} type="video/mp4" />
             Your browser does not support the video tag.
           </video>

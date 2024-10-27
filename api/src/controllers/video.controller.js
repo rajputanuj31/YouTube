@@ -206,4 +206,19 @@ const getVideoByUserId = asyncHandler(async (req, res) => {
     const videos = await Video.find({ owner: userId });
     res.status(200).json(new ApiResponse(200, videos, "Videos fetched successfully"));
 })
-export {uploadVideo, deleteVideo, getVideoById, updateVideo, getAllVideos, getVideoOwnerDetails, getVideoByUserId};
+
+const updateVideoViews = asyncHandler(async (req, res) => {
+    const { videoId } = req.params;
+    const video = await Video.findById(videoId);
+
+    if (!video) {
+        throw new ApiError(400, "Video not found");
+    }
+
+    video.views += 1; // Increment the views count
+    await video.save(); // Save the updated video
+
+    res.status(200).json(new ApiResponse(200, video, "Video views updated successfully"));
+})
+
+export {uploadVideo, deleteVideo, getVideoById, updateVideo, getAllVideos, getVideoOwnerDetails, getVideoByUserId, updateVideoViews};

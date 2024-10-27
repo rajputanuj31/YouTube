@@ -114,7 +114,7 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {videos.map((video: any) => (
               <Link href={`/video/${video._id}`} key={video._id}>
-                <div className="bg-black rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow hover:border hover:border-gray-600 w-64 h-60"> {/* Fixed size for video window */}
+                <div className="bg-black rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow hover:border hover:border-gray-600 w-72 h-72"> {/* Fixed size for video window */}
                   <div className="relative aspect-video">
                     <Image 
                       src={video.thumbnail || "/default-thumbnail.jpg"} 
