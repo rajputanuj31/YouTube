@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { Video } from "../models/video.model.js";
 import { uploadOnCloudinary ,deleteFromCloudinaryByUrl} from "../utils/cloudinary.js";
+import { Comment } from "../models/comment.model.js"; // Ensure Comment model is imported
 
 const uploadVideo = asyncHandler(async (req, res) => {
     const {title, description} = req.body;
@@ -67,13 +68,23 @@ const deleteVideo = asyncHandler(async (req, res) => {
     if (video.owner.toString() !== req.user._id.toString()) {
         throw new ApiError(403, "You are not allowed to delete this video");
     }
-    const videoFileUrl = video.videoFile;   
-    const thumbnailUrl = video.thumbnail;
-    await video.deleteOne({ _id: videoId });
-    await deleteFromCloudinaryByUrl(videoFileUrl,"video");
-    await deleteFromCloudinaryByUrl(thumbnailUrl,"image");
-    res.status(200).json(new ApiResponse(200, null, "Video deleted successfully"));
-})
+    
+    try {
+        // Delete comments associated with the video
+        await Comment.deleteMany({ video: videoId }); // Delete comments related to the video
+
+        const videoFileUrl = video.videoFile;   
+        const thumbnailUrl = video.thumbnail;
+        await video.deleteOne({ _id: videoId });
+        await deleteFromCloudinaryByUrl(videoFileUrl, "video");
+        await deleteFromCloudinaryByUrl(thumbnailUrl, "image");
+        
+        return res.status(200).json(new ApiResponse(200, null, "Video deleted successfully"));
+    } catch (error) {
+        console.error("Error deleting video:", error); // Log the error for debugging
+        throw new ApiError(500, "Internal Server Error"); // Return a generic error message
+    }
+});
 
 const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params;

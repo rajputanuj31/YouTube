@@ -28,6 +28,7 @@ export default function Profile() {
     isPublished: false
   });
   const [showVideoEdit, setShowVideoEdit] = useState(false);
+  const [deletingVideoId, setDeletingVideoId] = useState<string | null>(null);
 
   useEffect(() => {
     setIsClient(true)
@@ -154,6 +155,7 @@ export default function Profile() {
   };
 
   const handleDeleteVideo = async (videoId: string) => {
+    setDeletingVideoId(videoId);
     try {
       const response = await fetch(`/api/v1/videos/delete-video/${videoId}`, {
         method: 'DELETE',
@@ -172,6 +174,8 @@ export default function Profile() {
       }
     } catch (error) {
       console.error('Error deleting video:', error);
+    } finally {
+      setDeletingVideoId(null);
     }
   };
 
@@ -414,7 +418,7 @@ export default function Profile() {
                                       }
                                     }}
                                   >
-                                    <FaTrash className="mr-2" /> Delete
+                                    <FaTrash className="mr-2" /> {deletingVideoId === video._id ? 'Deleting...' : 'Delete'}
                                   </button>
                                   <button
                                     className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "

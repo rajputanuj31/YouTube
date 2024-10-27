@@ -6,6 +6,7 @@ import { FaThumbsUp, FaThumbsDown, FaDownload, FaShare } from 'react-icons/fa'
 import { useSelector } from "react-redux" // Fixed the import from UseSelector to useSelector
 import SuggestionVideos from "../../../components/SuggestionVideos" // Capitalized the component name
 import Comments from "../../../components/Comments"; // Import the Comments component
+import { getTimeAgo } from "@/app/utils/getTimeAgo"
 
 export default function VideoPage() {
   const params = useParams()
@@ -131,7 +132,7 @@ export default function VideoPage() {
             Your browser does not support the video tag.
           </video>
         </div>
-        <h1 className="text-white text-2xl font-bold ">{video.title}</h1>
+        <h1 className="text-white text-2xl font-bold mb-1">{video.title}</h1>
         <div className="flex items-center justify-between ml-2 mr-2">
           <div className="flex items-center">
             {videoOwner && videoOwner.avatar && (
@@ -173,7 +174,8 @@ export default function VideoPage() {
             </button>
           </div>
         </div>
-        <div className="bg-gray-800 p-4 mt-2 rounded-md"> {/* Added div with slightly different background color for description */}
+        <div className="bg-gray-900 p-4 mt-2 rounded-md"> {/* Added div with slightly different background color for description */}
+          <h1>{video.views} views • {getTimeAgo(video.createdAt)}</h1>
           <p className="text-white text-sm">{video.description}</p> {/* Added video description here */}
         </div>
 

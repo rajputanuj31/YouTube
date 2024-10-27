@@ -58,8 +58,9 @@ const deleteComment = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Comment not found");
     }
     
-    if (comment.owner.toString() !== req.user._id.toString()) {
-        throw new ApiError(403, "Unauthorized: Only comment owner can delete comment");
+    const video = await Video.findById(comment.video);
+    if (comment.owner.toString() !== req.user._id.toString() && video.owner.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "Unauthorized: Only comment owner or video owner can delete comment");
     }
 
     await comment.deleteOne();
