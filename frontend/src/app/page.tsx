@@ -4,15 +4,22 @@ import Image from "next/image";
 import Link from "next/link";
 import { getTimeAgo } from "./utils/getTimeAgo";
 import { FaEllipsisV, FaPlus, FaShareAlt } from 'react-icons/fa';
+import { useSelector } from "react-redux";
 
 export default function Home() {
   const [videos, setVideos] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [popupVideoId, setPopupVideoId] = useState<string | null>(null);
+  const [playlistPopupVideoId, setPlaylistPopupVideoId] = useState<string | null>(null);
+  const currentUser = useSelector((state: any) => state.user.currentUser?.data?.user);
+
+  const [playlists, setPlaylists] = useState([]);
+  const [selectedPlaylists, setSelectedPlaylists] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     fetchVideos();
+    fetchPlaylists();
   }, [currentPage]);
 
   const fetchVideos = async () => {
@@ -31,6 +38,19 @@ export default function Home() {
     }
   };
 
+  const fetchPlaylists = async () => {
+    try {
+      const response = await fetch(`/api/v1/playlist/get-playlists-by-user/${currentUser._id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch playlists');
+      }
+      const data = await response.json();
+      setPlaylists(data.data);
+    } catch (error) {
+      console.error('Error fetching playlists:', error);
+    }
+  };
+
   const togglePopup = (videoId: string) => {
     if (popupVideoId === videoId) {
       setPopupVideoId(null); // Close if it's the same video
@@ -39,14 +59,34 @@ export default function Home() {
     }
   };
 
-  const handleSaveToPlaylist = (videoId: string) => {
-    console.log('Save to playlist:', videoId);
-    // Implement save to playlist logic
+  const handleSaveToPlaylist = async (videoId: string) => {
+    try {
+      for (const playlistId in selectedPlaylists) {
+        if (selectedPlaylists[playlistId]) {
+          const response = await fetch(`/api/v1/playlist/add-video-to-playlist/${playlistId}/${videoId}`, {
+            method: 'PATCH',
+          });
+          if (!response.ok) {
+            throw new Error('Failed to add video to playlist');
+          }
+        }
+      }
+      setPlaylistPopupVideoId(null); // Close the popup after saving
+    } catch (error) {
+      console.error('Error saving to playlist:', error);
+    }
   };
 
   const handleShareVideo = (videoId: string) => {
     console.log('Share video:', videoId);
     // Implement share video logic
+  };
+
+  const handleCheckboxChange = (playlistId: string) => {
+    setSelectedPlaylists((prev) => ({
+      ...prev,
+      [playlistId]: !prev[playlistId],
+    }));
   };
 
   return (
@@ -103,7 +143,7 @@ export default function Home() {
                           className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "
                           onClick={(e) => {
                             e.preventDefault();
-                            handleSaveToPlaylist(video._id);
+                            setPlaylistPopupVideoId(video._id);
                           }}
                         >
                           <FaPlus className="mr-2" /> Save to Playlist
@@ -149,6 +189,43 @@ export default function Home() {
           </div>
         </main>
       </div>
+
+      {/* Playlist Popup */}
+      {playlistPopupVideoId && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h2 className="text-2xl font-semibold text-white mb-4">Select Playlists</h2>
+            <div className="p-2">
+              {playlists.map((playlist: any) => (
+                <div key={playlist._id} className="flex items-center mb-2">
+                  <input
+                    type="checkbox"
+                    id={`playlist-${playlist._id}`}
+                    checked={selectedPlaylists[playlist._id] || false}
+                    onChange={() => handleCheckboxChange(playlist._id)}
+                    className="mr-2"
+                  />
+                  <label htmlFor={`playlist-${playlist._id}`} className="text-white">{playlist.name}</label>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setPlaylistPopupVideoId(null)}
+                className="mr-2 px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleSaveToPlaylist(playlistPopupVideoId)}
+                className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

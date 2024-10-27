@@ -5,20 +5,14 @@ import { Playlist } from "../models/playlist.model.js";
 
 const createPlaylist = asyncHandler(async (req, res) => {
     const { name, description } = req.body;
-    const { videoId } = req.params;
 
     if (!name || !description) {
         throw new ApiError(400, "Name and description are required");
     }
 
-    if (!videoId) {
-        throw new ApiError(400, "Video is required");
-    }
-
     const playlist = await Playlist.create({
         name,
         description,
-        videos: [videoId],
         owner: req.user._id
     });
 
