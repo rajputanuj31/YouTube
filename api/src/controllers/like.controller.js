@@ -175,4 +175,16 @@ const getAllLikedTweets = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, likedTweets, "Liked tweets fetched successfully"));
 });
 
-export { toggleLikeVideo, toggleLikeComment, toggleLikeTweet, getAllLikedVideos, getAllLikedComments, getAllLikedTweets };
+const getLikesByVideoId = asyncHandler(async (req, res) => {
+    const { videoId } = req.params;
+
+    if (!videoId) {
+        throw new ApiError(400, "Video ID is required");
+    }
+
+    const likes = await Like.find({ video: videoId });
+
+    res.status(200).json(new ApiResponse(200, likes, "Likes fetched successfully"));
+});
+
+export { toggleLikeVideo, toggleLikeComment, toggleLikeTweet, getAllLikedVideos, getAllLikedComments, getAllLikedTweets,getLikesByVideoId };

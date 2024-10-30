@@ -17,7 +17,7 @@ interface Video {
   thumbnail?: string; // Added thumbnail property to Video interface
 }
 
-const Page = () => {
+const Playlist = () => {
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [videos, setVideos] = useState<{ [key: string]: Video }>({});
   const [loading, setLoading] = useState(true);
@@ -219,13 +219,15 @@ const Page = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 bg-black min-h-screen mt-20 relative">
-      <button
-        onClick={openModal}
-        className="fixed right-8 bg-black text-white rounded-full p-4 shadow-lg focus:outline-none"
-      >
-        <FaPlus className="w-6 h-6" />
-      </button>
-      <h1 className="text-3xl font-bold mb-8 text-white">Your Playlists</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-white">Your Playlists</h1>
+        <button
+          onClick={openModal}
+          className="bg-black text-white rounded-full p-4 shadow-lg focus:outline-none"
+        >
+          <FaPlus className="w-6 h-6" />
+        </button>
+      </div>
       {playlists.length === 0 ? (
         <p className="text-gray-300 text-lg">You don't have any playlists yet.</p>
       ) : (
@@ -355,4 +357,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default Playlist;

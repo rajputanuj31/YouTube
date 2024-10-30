@@ -2,10 +2,10 @@
 
 import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { FaThumbsUp, FaThumbsDown, FaDownload, FaShare } from 'react-icons/fa'
-import { useSelector } from "react-redux" // Fixed the import from UseSelector to useSelector
-import SuggestionVideos from "../../../components/SuggestionVideos" // Capitalized the component name
-import Comments from "../../../components/Comments"; // Import the Comments component
+import { FaThumbsUp, FaDownload, FaShare } from 'react-icons/fa'
+import { useSelector } from "react-redux"
+import SuggestionVideos from "../../../components/SuggestionVideos"
+import Comments from "../../../components/Comments"
 import { getTimeAgo } from "@/app/utils/getTimeAgo"
 
 export default function VideoPage() {
@@ -18,14 +18,14 @@ export default function VideoPage() {
   const [videoOwner, setVideoOwner] = useState<any>(null)
   const [isSubscribed, setIsSubscribed] = useState(false)
   const currentUser = useSelector((state: any) => state.user.currentUser?.data.user)
-  const [comments, setComments] = useState<any[]>([]); // Keep comments state here
+  const [comments, setComments] = useState<any[]>([])
+  const [likes, setLikes] = useState<any[]>([])
 
   useEffect(() => {
     if (id) {
       const fetchVideo = async () => {
         try {
           const response = await fetch(`/api/v1/videos/get-video/${id}`)
-
           if (!response.ok) {
             throw new Error('Failed to fetch video')
           }
@@ -52,8 +52,23 @@ export default function VideoPage() {
         }
       }
 
+      const fetchLikes = async () => {
+        try {
+          const response = await fetch(`/api/v1/likes/get-likes-by-videoId/${id}`)
+          if (!response.ok) {
+            throw new Error('Failed to fetch Likes')
+          }
+          const data = await response.json()
+          setLikes(data.data)
+          
+        } catch (error) {
+          setError((error as Error).message)
+        }
+      }
+
       fetchVideo()
       fetchVideoOwner()
+      fetchLikes()
     }
   }, [id])
 
@@ -74,9 +89,7 @@ export default function VideoPage() {
       if (!response.ok) {
         throw new Error('Failed to update views')
       }
-      const data = await response.json();
-      console.log(data);
-      
+      const data = await response.json()
       setVideo((prevVideo: any) => ({
         ...prevVideo,
         views: data.data.views
@@ -122,12 +135,37 @@ export default function VideoPage() {
     }
   }
 
+  const toggleLike = async () => {
+    try {
+      const response = await fetch(`/api/v1/likes/toggle-like-video/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to toggle like');
+      }
+      const data = await response.json();
+      
+      // Update local state immediately for better UX
+      setLikes((prevLikes) => {
+        const isLiked = prevLikes.some(like => like.video === id);
+        if (isLiked) {
+          return prevLikes.filter(like => like.video !== id); // Remove like
+        } else {
+          return [...prevLikes, data.data]; // Add new like
+        }
+      });
+    } catch (error) {
+      setError((error as Error).message);
+    }
+  }
   return (
     <div className="flex w-full h-full bg-black pt-[69px]">
-      {/* Video Player */}
-      <div className="ml-5 mt-5 flex-grow bg-black shadow-lg rounded-lg overflow-hidden min-w-[800px]"> {/* Dynamic width for video player */}
+      <div className="ml-5 mt-5 flex-grow bg-black shadow-lg rounded-lg overflow-hidden min-w-[800px]">
         <div className="h-[500px]">
-          <video controls className="w-full h-full object-cover " onPlay={handleVideoWatch}>
+          <video controls className="w-full h-full object-cover" onPlay={handleVideoWatch}>
             <source src={video.videoFile} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
@@ -160,12 +198,12 @@ export default function VideoPage() {
             )}
           </div>
           <div className="flex items-center space-x-3 ">
-            <button className="text-white flex items-center bg-gray-700 rounded-full px-4 py-2 hover:bg-gray-600 transition-colors duration-200">
-              <FaThumbsUp className="mr-1" /> {video.likes} Like
+            <button className="text-white flex items-center bg-gray-700 rounded-full px-4 py-2 hover:bg-gray-600 transition-colors duration-200"
+            onClick={toggleLike}
+            >
+              <FaThumbsUp className="mr-1" /> {likes.length} 
             </button>
-            <button className="text-white flex items-center bg-gray-700 rounded-full px-4 py-2 hover:bg-gray-600 transition-colors duration-200">
-              <FaThumbsDown className="mr-1" /> Dislike
-            </button>
+
             <button className="text-white flex items-center bg-gray-700 rounded-full px-4 py-2 hover:bg-gray-600 transition-colors duration-200">
               <FaDownload className="mr-1" /> Download
             </button>
@@ -174,15 +212,15 @@ export default function VideoPage() {
             </button>
           </div>
         </div>
-        <div className="bg-gray-900 p-4 mt-2 rounded-md"> {/* Added div with slightly different background color for description */}
+        <div className="bg-gray-900 p-4 mt-2 rounded-md">
           <h1>{video.views} views • {getTimeAgo(video.createdAt)}</h1>
-          <p className="text-white text-sm">{video.description}</p> {/* Added video description here */}
+          <p className="text-white text-sm">{video.description}</p>
         </div>
 
-        <Comments setComments={setComments} currentUser={currentUser} videoId={id} /> {/* Use the Comments component */}
+        <Comments setComments={setComments} currentUser={currentUser} videoId={id} />
       </div>
 
-      <div className="w-full max-w-[480px]"> {/* Dynamic width with a max width for the right section */}
+      <div className="w-full max-w-[480px]">
         <SuggestionVideos />
       </div>
     </div>

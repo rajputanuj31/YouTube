@@ -7,6 +7,7 @@ import Link from "next/link"
 import { useParams } from "next/navigation"
 import { FaTimes, FaEllipsisV, FaTrash, FaEdit, FaShareAlt, FaPlus } from 'react-icons/fa'; // Added FaShareAlt and FaPlus
 import { getTimeAgo } from "@/app/utils/getTimeAgo"
+import Playlist from "@/app/playlist/page"
 
 export default function Profile() {
   const { error, loading } = useSelector((state: any) => state.user)
@@ -32,6 +33,7 @@ export default function Profile() {
   const [playlists, setPlaylists] = useState([]); // Add this state for playlists
   const [selectedPlaylists, setSelectedPlaylists] = useState<{ [key: string]: boolean }>({}); // Add this state for selected playlists
   const [playlistPopupVideoId, setPlaylistPopupVideoId] = useState<string | null>(null); // Add this state for playlist popup
+  const [showVideos, setShowVideos] = useState(true); // State to toggle between videos and playlists
 
   useEffect(() => {
     setIsClient(true)
@@ -418,102 +420,112 @@ export default function Profile() {
           </div>
         )}
 
-        {/* Videos Section */}
+        {/* Videos and Playlists Section */}
         <div className="w-full ">
           <div className="w-full px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold mb-2 ">Videos</h2>
+            <div className="flex ">
+              <h2 className="text-2xl font-bold  m-1 cursor-pointer" onClick={() => setShowVideos(true)}>Videos</h2>
+              <hr className="border-l-2 border-gray-600 h-8 mx-2 mt-1" />
+              <h2 className="text-2xl font-bold m-1 cursor-pointer" onClick={() => setShowVideos(false)}>PlayLists</h2>
+            </div>
             <hr className="w-full h-1 border-gray-800" />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ">
-              {videos.length > 0 ? (
-                videos.map((video: any, index: number) => (
-                  <Link href={`/video/${video._id}`} key={index}>
-                    <div className="bg-black rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow p-2 hover:cursor-pointer hover:border hover:border-gray-600" style={{ height: '250px' }}>
-                      <div className="relative h-2/3">
-                        <img
-                          src={video.thumbnail || '/default-thumbnail.jpg'}
-                          alt={video.title}
-                          className="absolute top-0 left-0 w-full h-full object-cover rounded-lg"
-                        />
-                        <p className="text-white text-sm absolute bottom-2 right-2 bg-black bg-opacity-50 p-1 rounded-lg">{(parseFloat(video.duration) / 60).toFixed(2)} </p>
-                      </div>
-                      <div className="flex justify-between items-center mt-1">
-                        <h3 className="h-1/3 flex flex-col justify-start text-md font-semibold text-white truncate">{video.title}</h3>
-                        <div className="relative">
-                          <FaEllipsisV
-                            className="text-gray-400 hover:text-white cursor-pointer"
-                            size={20}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              togglePopup(video._id);                           
-                            }}
+            {showVideos ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ">
+                {videos.length > 0 ? (
+                  videos.map((video: any, index: number) => (
+                    <Link href={`/video/${video._id}`} key={index}>
+                      <div className="bg-black rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow p-2 hover:cursor-pointer hover:border hover:border-gray-600" style={{ height: '250px' }}>
+                        <div className="relative h-2/3">
+                          <img
+                            src={video.thumbnail || '/default-thumbnail.jpg'}
+                            alt={video.title}
+                            className="absolute top-0 left-0 w-full h-full object-cover rounded-lg"
                           />
-                          {/* Popup for video options */}
-                          {popupVideoId === video._id && (
-                            <div className="absolute right-3 bottom-1 bg-black text-white rounded-lg shadow-lg w-40 z-50 ">
-                              {currentUser._id === video.owner && ( // Only show delete and update options if the user is the owner
-                                <>
-                                  <button
-                                    className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      if (popupVideoId) {
-                                        handleDeleteVideo(popupVideoId);
-                                      }
-                                    }}
-                                  >
-                                    <FaTrash className="mr-2" /> {deletingVideoId === video._id ? 'Deleting...' : 'Delete'}
-                                  </button>
-                                  <button
-                                    className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      setVideoEditData({
-                                        title: video.title,
-                                        description: video.description,
-                                        isPublished: video.isPublished
-                                      });
-                                      setShowVideoEdit(true);
-                                    }}
-                                  >
-                                    <FaEdit className="mr-2" /> Update
-                                  </button>
-                                </>
-                              )}
-                              <button
-                                className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  openPlaylistPopup(video._id); // Open the playlist popup
-                                }}
-                              >
-                                <FaPlus className="mr-2" /> Save to Playlist
-                              </button>
-                              <button
-                                className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  if (popupVideoId) {
-                                    handleShareVideo(popupVideoId);
-                                  }
-                                }}
-                              >
-                                <FaShareAlt className="mr-2" /> Share
-                              </button>
-                            </div>
-                          )}
+                          <p className="text-white text-sm absolute bottom-2 right-2 bg-black bg-opacity-50 p-1 rounded-lg">{(parseFloat(video.duration) / 60).toFixed(2)} </p>
+                        </div>
+                        <div className="flex justify-between items-center mt-1">
+                          <h3 className="h-1/3 flex flex-col justify-start text-md font-semibold text-white truncate">{video.title}</h3>
+                          <div className="relative">
+                            <FaEllipsisV
+                              className="text-gray-400 hover:text-white cursor-pointer"
+                              size={20}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                togglePopup(video._id);                           
+                              }}
+                            />
+                            {/* Popup for video options */}
+                            {popupVideoId === video._id && (
+                              <div className="absolute right-3 bottom-1 bg-black text-white rounded-lg shadow-lg w-40 z-50 ">
+                                {currentUser._id === video.owner && ( // Only show delete and update options if the user is the owner
+                                  <>
+                                    <button
+                                      className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        if (popupVideoId) {
+                                          handleDeleteVideo(popupVideoId);
+                                        }
+                                      }}
+                                    >
+                                      <FaTrash className="mr-2" /> {deletingVideoId === video._id ? 'Deleting...' : 'Delete'}
+                                    </button>
+                                    <button
+                                      className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        setVideoEditData({
+                                          title: video.title,
+                                          description: video.description,
+                                          isPublished: video.isPublished
+                                        });
+                                        setShowVideoEdit(true);
+                                      }}
+                                    >
+                                      <FaEdit className="mr-2" /> Update
+                                    </button>
+                                  </>
+                                )}
+                                <button
+                                  className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    openPlaylistPopup(video._id); // Open the playlist popup
+                                  }}
+                                >
+                                  <FaPlus className="mr-2" /> Save to Playlist
+                                </button>
+                                <button
+                                  className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    if (popupVideoId) {
+                                      handleShareVideo(popupVideoId);
+                                    }
+                                  }}
+                                >
+                                  <FaShareAlt className="mr-2" /> Share
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center text-gray-400 text-xs">
+                          <p className="text-gray-400 text-sm">{video.views} views • {getTimeAgo(video.createdAt)}</p>
                         </div>
                       </div>
-                      <div className="flex justify-between items-center text-gray-400 text-xs">
-                        <p className="text-gray-400 text-sm">{video.views} views • {getTimeAgo(video.createdAt)}</p>
-                      </div>
-                    </div>
-                  </Link>
-                ))
-              ) : (
-                <p className="text-gray-400 col-span-full">No videos available.</p>
-              )}
-            </div>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="text-gray-400 col-span-full">No videos available.</p>
+                )}
+              </div>
+            ) : (
+              <div >
+                <Playlist /> {/* Importing and displaying the Playlist component */}
+              </div>
+            )}
           </div>
         </div>
 
