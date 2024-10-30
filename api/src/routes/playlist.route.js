@@ -8,7 +8,7 @@ router.use(verifyAccessToken);
 
 router.post("/create-playlist", createPlaylist);
 router.patch("/add-video-to-playlist/:playlistId/:videoId", addVideoToPlaylist);
-router.post("/remove-video-from-playlist/:playlistId/:videoId", removeVideoFromPlaylist);
+router.patch("/remove-video-from-playlist/:playlistId/:videoId", removeVideoFromPlaylist);
 router.get("/get-playlist/:playlistId", getPlaylistById);
 router.get("/get-playlists-by-user/:userId", getPlaylistsByUserId);
 router.delete("/delete-playlist/:playlistId", deletePlaylist);

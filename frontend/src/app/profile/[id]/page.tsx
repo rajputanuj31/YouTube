@@ -29,6 +29,9 @@ export default function Profile() {
   });
   const [showVideoEdit, setShowVideoEdit] = useState(false);
   const [deletingVideoId, setDeletingVideoId] = useState<string | null>(null);
+  const [playlists, setPlaylists] = useState([]); // Add this state for playlists
+  const [selectedPlaylists, setSelectedPlaylists] = useState<{ [key: string]: boolean }>({}); // Add this state for selected playlists
+  const [playlistPopupVideoId, setPlaylistPopupVideoId] = useState<string | null>(null); // Add this state for playlist popup
 
   useEffect(() => {
     setIsClient(true)
@@ -130,6 +133,57 @@ export default function Profile() {
     }
   };
 
+  const fetchPlaylists = async (videoId: string) => {
+    try {
+      const response = await fetch(`/api/v1/playlist/get-playlists-by-user/${currentUser._id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch playlists');
+      }
+      const data = await response.json();
+      const filteredPlaylists = data.data.filter(
+        (playlist: any) => !playlist.videos.includes(videoId)
+      );
+      setPlaylists(filteredPlaylists); // All playlists
+    } catch (error) {
+      console.error('Error fetching playlists:', error);
+    }
+  };
+
+  const handleSaveToPlaylist = async (videoId: string) => {
+    try {
+      for (const playlistId in selectedPlaylists) {
+        if (selectedPlaylists[playlistId]) {
+          const response = await fetch(`/api/v1/playlist/add-video-to-playlist/${playlistId}/${videoId}`, {
+            method: 'PATCH',
+          });
+          if (!response.ok) {
+            throw new Error('Failed to add video to playlist');
+          }
+        }
+      }
+      setPlaylistPopupVideoId(null); // Close the popup after saving
+    } catch (error) {
+      console.error('Error saving to playlist:', error);
+    }
+  };
+
+  const handleCheckboxChange = (playlistId: string) => {
+    setSelectedPlaylists((prev) => ({
+      ...prev,
+      [playlistId]: !prev[playlistId],
+    }));
+  };
+
+  const openPlaylistPopup = (videoId: string) => {
+    fetchPlaylists(videoId);
+    setPlaylistPopupVideoId(videoId);
+  };
+
+  const handleShareVideo = (videoId: string) => {
+    console.log('Share video:', videoId);
+    // Implement share video logic
+  };
+
   if (!isClient) {
     return null // Return null on the server-side
   }
@@ -177,16 +231,6 @@ export default function Profile() {
     } finally {
       setDeletingVideoId(null);
     }
-  };
-
-  const handleSaveToPlaylist = (videoId: string) => {
-    console.log('Save to playlist:', videoId);
-    // Implement save to playlist logic
-  };
-
-  const handleShareVideo = (videoId: string) => {
-    console.log('Share video:', videoId);
-    // Implement share video logic
   };
 
   return (
@@ -440,9 +484,7 @@ export default function Profile() {
                                 className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "
                                 onClick={(e) => {
                                   e.preventDefault();
-                                  if (popupVideoId) {
-                                    handleSaveToPlaylist(popupVideoId);
-                                  }
+                                  openPlaylistPopup(video._id); // Open the playlist popup
                                 }}
                               >
                                 <FaPlus className="mr-2" /> Save to Playlist
@@ -474,6 +516,43 @@ export default function Profile() {
             </div>
           </div>
         </div>
+
+        {/* Playlist Popup */}
+        {playlistPopupVideoId && (
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+            <div className="bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md">
+              <h2 className="text-2xl font-semibold text-white mb-4">Select Playlists</h2>
+              <div className="p-2">
+                {playlists.map((playlist: any) => (
+                  <div key={playlist._id} className="flex items-center mb-2">
+                    <input
+                      type="checkbox"
+                      id={`playlist-${playlist._id}`}
+                      checked={selectedPlaylists[playlist._id] || false}
+                      onChange={() => handleCheckboxChange(playlist._id)}
+                      className="mr-2"
+                    />
+                    <label htmlFor={`playlist-${playlist._id}`} className="text-white">{playlist.name}</label>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-end">
+                <button
+                  onClick={() => setPlaylistPopupVideoId(null)}
+                  className="mr-2 px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleSaveToPlaylist(playlistPopupVideoId)}
+                  className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

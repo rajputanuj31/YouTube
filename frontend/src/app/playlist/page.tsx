@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { FaPlus, FaEllipsisV } from 'react-icons/fa';
+import { FaPlus, FaEllipsisV, FaTimes } from 'react-icons/fa'; // Import FaTimes for the cross icon
 import { useRouter } from 'next/navigation';
 
 interface Playlist {
@@ -26,6 +26,7 @@ const Page = () => {
   const [newPlaylist, setNewPlaylist] = useState({ name: '', description: '' });
   const [showOptions, setShowOptions] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
+  const [PlaylistId, setPlaylistId] = useState<string | null>(null);
   const [editPlaylistId, setEditPlaylistId] = useState<string | null>(null);
   const [selectedPlaylistVideos, setSelectedPlaylistVideos] = useState<Video[]>([]);
   const [showVideoPopup, setShowVideoPopup] = useState(false);
@@ -134,6 +135,9 @@ const Page = () => {
         })
       );
       setSelectedPlaylistVideos(videosInPlaylist.filter(video => video !== null) as Video[]);
+      console.log(playlist._id);
+      
+      setPlaylistId(playlist._id);
       setShowVideoPopup(true);
     }
   };
@@ -168,6 +172,36 @@ const Page = () => {
     setEditMode(true);
     setEditPlaylistId(playlist._id);
     openModal();
+  };
+
+  const handleRemoveFromPlaylist = async (playlistId: string, videoId: string) => {
+    try {
+      const response = await fetch(`/api/v1/playlist/remove-video-from-playlist/${playlistId}/${videoId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ videoId }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to remove video from playlist.');
+      }
+
+      setPlaylists((prev) => 
+        prev.map((playlist) => 
+          playlist._id === playlistId 
+            ? { ...playlist, videos: playlist.videos.filter(id => id !== videoId) } 
+            : playlist
+        )
+      );
+
+      // Set the selected video here
+      setSelectedPlaylistVideos((prev) => prev.filter(video => video._id !== videoId));
+      
+    } catch (error) {
+      setError((error as Error).message);
+    }
   };
 
   const closeVideoPopup = () => {
@@ -222,7 +256,7 @@ const Page = () => {
                 </button>
               </div>
               {showOptions === playlist._id && (
-                <div className="absolute  right-1 bg-gray-800 rounded-md shadow-lg p-2">
+                <div className="absolute right-1 bg-gray-800 rounded-md shadow-lg p-2">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -252,13 +286,20 @@ const Page = () => {
             <h2 className="text-2xl font-semibold text-white mb-4">Videos</h2>
             <div className="flex flex-col">
               {selectedPlaylistVideos.map((video) => (
-                <button
-                  key={video._id}
-                  className="text-lg text-white rounded-full border border-gray-600 p-2 m-1 hover:bg-gray-600"
-                  onClick={() => handleVideoClick(video._id)}
-                >
-                  {video.title}
-                </button>
+                <div key={video._id} className="flex justify-between items-center">
+                  <button
+                    className="text-lg text-white rounded-full border border-gray-600 p-2 m-1 hover:bg-gray-600"
+                    onClick={() => handleVideoClick(video._id)}
+                  >
+                    {video.title}
+                  </button>
+                  <button
+                    onClick={() => PlaylistId && handleRemoveFromPlaylist(PlaylistId, video._id)} // Use editPlaylistId to reference the current playlist
+                    className="text-red-500 hover:bg-gray-700 p-2 rounded-full"
+                  >
+                    <FaTimes /> {/* Replace Remove button with cross icon */}
+                  </button>
+                </div>
               ))}
             </div>
             <div className="flex justify-center mt-4">
