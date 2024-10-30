@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { FaPlus, FaEllipsisV, FaTimes } from 'react-icons/fa'; // Import FaTimes for the cross icon
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface Playlist {
   _id: string;
@@ -15,9 +16,14 @@ interface Video {
   _id: string;
   title: string;
   thumbnail?: string; // Added thumbnail property to Video interface
+  duration: string;
+  ownerUsername: string
 }
-
-const Playlist = () => {
+interface PlaylistProps {
+  showTitle?: boolean;
+  additionalClasses?: string;
+}
+const Playlist: React.FC<PlaylistProps> = ({ showTitle = true, additionalClasses = "mt-20" }) => {
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [videos, setVideos] = useState<{ [key: string]: Video }>({});
   const [loading, setLoading] = useState(true);
@@ -136,7 +142,7 @@ const Playlist = () => {
       );
       setSelectedPlaylistVideos(videosInPlaylist.filter(video => video !== null) as Video[]);
       console.log(playlist._id);
-      
+
       setPlaylistId(playlist._id);
       setShowVideoPopup(true);
     }
@@ -183,22 +189,22 @@ const Playlist = () => {
         },
         body: JSON.stringify({ videoId }),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to remove video from playlist.');
       }
 
-      setPlaylists((prev) => 
-        prev.map((playlist) => 
-          playlist._id === playlistId 
-            ? { ...playlist, videos: playlist.videos.filter(id => id !== videoId) } 
+      setPlaylists((prev) =>
+        prev.map((playlist) =>
+          playlist._id === playlistId
+            ? { ...playlist, videos: playlist.videos.filter(id => id !== videoId) }
             : playlist
         )
       );
 
       // Set the selected video here
       setSelectedPlaylistVideos((prev) => prev.filter(video => video._id !== videoId));
-      
+
     } catch (error) {
       setError((error as Error).message);
     }
@@ -218,9 +224,9 @@ const Playlist = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 bg-black min-h-screen mt-20 relative">
+    <div className={`container mx-auto px-4 py-8 bg-black min-h-screen relative ${additionalClasses}`}>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-white">Your Playlists</h1>
+        {showTitle && <h1 className="text-2xl font-bold">Your Playlists</h1>}
         <button
           onClick={openModal}
           className="bg-black text-white rounded-full p-4 shadow-lg focus:outline-none"
@@ -262,7 +268,8 @@ const Playlist = () => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleEditPlaylist(playlist)}}
+                      handleEditPlaylist(playlist)
+                    }}
                     className="block text-white hover:bg-gray-700 w-full text-left p-2"
                   >
                     Edit
@@ -270,7 +277,8 @@ const Playlist = () => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDeletePlaylist(playlist._id)}}
+                      handleDeletePlaylist(playlist._id)
+                    }}
                     className="block text-red-500 hover:bg-gray-700 w-full text-left p-2"
                   >
                     Delete
@@ -281,33 +289,49 @@ const Playlist = () => {
           ))}
         </div>
       )}
-
       {showVideoPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md">
-            <h2 className="text-2xl font-semibold text-white mb-4">Videos</h2>
-            <div className="flex flex-col">
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+          <div className="bg-gray-900 rounded-xl shadow-2xl p-8 w-full max-w-lg">
+            <h2 className="text-3xl font-bold text-white mb-6 text-center">Videos</h2>
+            <div className="space-y-3">
               {selectedPlaylistVideos.map((video) => (
-                <div key={video._id} className="flex justify-between items-center">
+                <div
+                  key={video._id}
+                  className="flex items-center p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition duration-300 transform hover:scale-105 shadow-md"
+                >
+                  <div className="relative">
+                    <Image
+                      src={video.thumbnail || "/default-thumbnail.jpg"}
+                      alt={video.title}
+                      width={64}  // Fixed width for thumbnails
+                      height={64} // Fixed height for thumbnails
+                      className="rounded-md object-cover w-32 h-20 mr-4" // Set fixed width and height for the image
+                      unoptimized={true}
+                    />
+                    <p className="text-white text-sm absolute bottom-0 right-2 bg-black bg-opacity-50 p-1 rounded-lg">{(parseFloat(video.duration) / 60).toFixed(2)} </p>
+                  </div>
+                  <div className="flex-grow text-left ml-2">
+                    <button
+                      className="text-sm font-medium text-white rounded-full w-full transition duration-300 text-left" // Changed to smaller text and ensured text is left-aligned
+                      onClick={() => handleVideoClick(video._id)}
+                    >
+                      {video.title}
+                    </button>
+                    <p className="text-gray-300 text-sm">{video.ownerUsername}</p> {/* Moved ownerUsername below title */}
+                  </div>
                   <button
-                    className="text-lg text-white rounded-full border border-gray-600 p-2 m-1 hover:bg-gray-600"
-                    onClick={() => handleVideoClick(video._id)}
+                    onClick={() => PlaylistId && handleRemoveFromPlaylist(PlaylistId, video._id)}
+                    className="text-red-500 hover:bg-red-700 p-2 rounded-full transition duration-300"
                   >
-                    {video.title}
-                  </button>
-                  <button
-                    onClick={() => PlaylistId && handleRemoveFromPlaylist(PlaylistId, video._id)} // Use editPlaylistId to reference the current playlist
-                    className="text-red-500 hover:bg-gray-700 p-2 rounded-full"
-                  >
-                    <FaTimes /> {/* Replace Remove button with cross icon */}
+                    <FaTimes size={16} />
                   </button>
                 </div>
               ))}
             </div>
-            <div className="flex justify-center mt-4">
+            <div className="flex justify-center mt-6">
               <button
                 onClick={closeVideoPopup}
-                className="px-6 py-2 rounded-full bg-black text-white hover:bg-white hover:text-black"
+                className="px-6 py-2 rounded-full bg-gray-800 text-white font-semibold hover:bg-white hover:text-black transition duration-300 shadow-md"
               >
                 Close
               </button>
@@ -315,6 +339,7 @@ const Playlist = () => {
           </div>
         </div>
       )}
+
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">

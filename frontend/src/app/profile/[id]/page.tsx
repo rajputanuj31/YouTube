@@ -8,6 +8,7 @@ import { useParams } from "next/navigation"
 import { FaTimes, FaEllipsisV, FaTrash, FaEdit, FaShareAlt, FaPlus } from 'react-icons/fa'; // Added FaShareAlt and FaPlus
 import { getTimeAgo } from "@/app/utils/getTimeAgo"
 import Playlist from "@/app/playlist/page"
+import WatchHistory from "@/app/watchHistory/page" // Importing WatchHistory component
 
 export default function Profile() {
   const { error, loading } = useSelector((state: any) => state.user)
@@ -33,7 +34,8 @@ export default function Profile() {
   const [playlists, setPlaylists] = useState([]); // Add this state for playlists
   const [selectedPlaylists, setSelectedPlaylists] = useState<{ [key: string]: boolean }>({}); // Add this state for selected playlists
   const [playlistPopupVideoId, setPlaylistPopupVideoId] = useState<string | null>(null); // Add this state for playlist popup
-  const [showVideos, setShowVideos] = useState(true); // State to toggle between videos and playlists
+  const [showVideos, setShowVideos] = useState(true); // State to toggle between videos, playlists, and watch history
+  const [showWatchHistory, setShowWatchHistory] = useState(false); // State to toggle watch history
 
   useEffect(() => {
     setIsClient(true)
@@ -420,13 +422,15 @@ export default function Profile() {
           </div>
         )}
 
-        {/* Videos and Playlists Section */}
+        {/* Videos, Playlists, and Watch History Section */}
         <div className="w-full ">
           <div className="w-full px-4 sm:px-6 lg:px-8">
             <div className="flex ">
-              <h2 className="text-2xl font-bold  m-1 cursor-pointer" onClick={() => setShowVideos(true)}>Videos</h2>
+              <h2 className="text-2xl font-bold m-1 cursor-pointer" onClick={() => { setShowVideos(true); setShowWatchHistory(false); }}>Videos</h2>
               <hr className="border-l-2 border-gray-600 h-8 mx-2 mt-1" />
-              <h2 className="text-2xl font-bold m-1 cursor-pointer" onClick={() => setShowVideos(false)}>PlayLists</h2>
+              <h2 className="text-2xl font-bold m-1 cursor-pointer" onClick={() => { setShowWatchHistory(true); setShowVideos(false); }}>Watch History</h2>
+              <hr className="border-l-2 border-gray-600 h-8 mx-2 mt-1" />
+              <h2 className="text-2xl font-bold m-1 cursor-pointer" onClick={() => { setShowVideos(false); setShowWatchHistory(false); }}>PlayLists</h2>
             </div>
             <hr className="w-full h-1 border-gray-800" />
 
@@ -521,9 +525,13 @@ export default function Profile() {
                   <p className="text-gray-400 col-span-full">No videos available.</p>
                 )}
               </div>
+            ) : showWatchHistory ? (
+              <div>
+                <WatchHistory showTitle={false} additionalClasses="" />
+              </div>
             ) : (
               <div >
-                <Playlist /> {/* Importing and displaying the Playlist component */}
+                <Playlist showTitle={true} additionalClasses="pt-0" /> 
               </div>
             )}
           </div>

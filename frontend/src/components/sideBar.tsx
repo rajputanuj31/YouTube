@@ -56,7 +56,7 @@ const Sidebar = () => {
           </Link></li>
         <li className="hover:bg-gray-800 p-2 rounded transition-colors flex items-center"><FaHistory className="mr-2" />
           <Link href="/watchHistory">
-            History
+            Watch History
           </Link></li>
         <li className="hover:bg-gray-800 p-2 rounded transition-colors flex items-center"><FaVideo className="mr-2" />
           <Link href={`/profile/${currentUser?._id}`} className="flex items-center">
