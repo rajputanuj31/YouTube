@@ -19,7 +19,6 @@ export default function Home() {
 
   useEffect(() => {
     fetchVideos();
-    fetchPlaylists();
   }, [currentPage]);
 
   const fetchVideos = async () => {
@@ -38,14 +37,17 @@ export default function Home() {
     }
   };
 
-  const fetchPlaylists = async () => {
+  const fetchPlaylists = async (videoId: string) => {
     try {
       const response = await fetch(`/api/v1/playlist/get-playlists-by-user/${currentUser._id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch playlists');
       }
       const data = await response.json();
-      setPlaylists(data.data);
+      const filteredPlaylists = data.data.filter(
+        (playlist: any) => !playlist.videos.includes(videoId)
+      );
+      setPlaylists(filteredPlaylists); // All playlists
     } catch (error) {
       console.error('Error fetching playlists:', error);
     }
@@ -87,6 +89,11 @@ export default function Home() {
       ...prev,
       [playlistId]: !prev[playlistId],
     }));
+  };
+
+  const openPlaylistPopup = (videoId: string) => {
+    fetchPlaylists(videoId);
+    setPlaylistPopupVideoId(videoId);
   };
 
   return (
@@ -143,7 +150,7 @@ export default function Home() {
                           className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "
                           onClick={(e) => {
                             e.preventDefault();
-                            setPlaylistPopupVideoId(video._id);
+                            openPlaylistPopup(video._id);
                           }}
                         >
                           <FaPlus className="mr-2" /> Save to Playlist

@@ -14,7 +14,7 @@ interface Playlist {
 interface Video {
   _id: string;
   title: string;
-  thumbnail: string;
+  thumbnail?: string; // Added thumbnail property to Video interface
 }
 
 const Page = () => {
@@ -24,17 +24,17 @@ const Page = () => {
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [newPlaylist, setNewPlaylist] = useState({ name: '', description: '' });
-  const [showOptions, setShowOptions] = useState<string | null>(null); // State to manage options popup
-  const [editMode, setEditMode] = useState(false); // State to manage edit mode
-  const [editPlaylistId, setEditPlaylistId] = useState<string | null>(null); // State to manage the playlist being edited
+  const [showOptions, setShowOptions] = useState<string | null>(null);
+  const [editMode, setEditMode] = useState(false);
+  const [editPlaylistId, setEditPlaylistId] = useState<string | null>(null);
+  const [selectedPlaylistVideos, setSelectedPlaylistVideos] = useState<Video[]>([]);
+  const [showVideoPopup, setShowVideoPopup] = useState(false);
 
-  const router = useRouter(); // Initialize useRouter
+  const router = useRouter();
 
-  // Retrieve the current user from the Redux store
   const currentUser = useSelector((state: any) => state.user.currentUser?.data?.user);
 
   useEffect(() => {
-    // If currentUser is not available, do not proceed
     if (!currentUser?._id) {
       setError('User not found. Please log in.');
       setLoading(false);
@@ -44,7 +44,6 @@ const Page = () => {
     const fetchPlaylists = async () => {
       try {
         setLoading(true);
-
         const response = await fetch(`/api/v1/playlist/get-playlists-by-user/${currentUser._id}`);
         if (!response.ok) {
           throw new Error('Failed to fetch playlists.');
@@ -53,7 +52,6 @@ const Page = () => {
         const data = await response.json();
         setPlaylists(data.data);
 
-        // Fetch videos for each playlist
         for (const playlist of data.data) {
           for (const videoId of playlist.videos) {
             if (!videos[videoId]) {
@@ -75,12 +73,10 @@ const Page = () => {
     fetchPlaylists();
   }, [currentUser]);
 
-  // Function to handle opening the modal
   const openModal = () => {
     setShowModal(true);
   };
 
-  // Function to handle closing the modal
   const closeModal = () => {
     setShowModal(false);
     setNewPlaylist({ name: '', description: '' });
@@ -88,13 +84,11 @@ const Page = () => {
     setEditPlaylistId(null);
   };
 
-  // Function to handle input changes in the modal
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setNewPlaylist((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Function to handle form submission (creating or editing a playlist)
   const handleCreateOrEditPlaylist = async () => {
     try {
       const url = editMode ? `/api/v1/playlist/update-playlist/${editPlaylistId}` : '/api/v1/playlist/create-playlist';
@@ -119,7 +113,7 @@ const Page = () => {
       if (editMode) {
         setPlaylists((prev) => prev.map((playlist) => (playlist._id === editPlaylistId ? data.data : playlist)));
       } else {
-        setPlaylists((prev) => [...prev, data.data]); // Add new playlist to the list
+        setPlaylists((prev) => [...prev, data.data]);
       }
       closeModal();
     } catch (error) {
@@ -127,19 +121,31 @@ const Page = () => {
     }
   };
 
-  // Function to handle playlist click
-  const handlePlaylistClick = (playlist: Playlist) => {
+  const handlePlaylistClick = async (playlist: Playlist) => {
     if (playlist.videos.length > 0) {
-      router.push(`/video/${playlist.videos[0]}`);
+      const videosInPlaylist = await Promise.all(
+        playlist.videos.map(async (videoId) => {
+          const videoResponse = await fetch(`/api/v1/videos/get-video/${videoId}`);
+          if (videoResponse.ok) {
+            const videoData = await videoResponse.json();
+            return videoData.data;
+          }
+          return null;
+        })
+      );
+      setSelectedPlaylistVideos(videosInPlaylist.filter(video => video !== null) as Video[]);
+      setShowVideoPopup(true);
     }
   };
 
-  // Function to handle options click
+  const handleVideoClick = (videoId: string) => {
+    router.push(`/video/${videoId}`);
+  };
+
   const handleOptionsClick = (playlistId: string) => {
     setShowOptions((prev) => (prev === playlistId ? null : playlistId));
   };
 
-  // Function to handle delete playlist
   const handleDeletePlaylist = async (playlistId: string) => {
     try {
       const response = await fetch(`/api/v1/playlist/delete-playlist/${playlistId}`, {
@@ -157,7 +163,6 @@ const Page = () => {
     }
   };
 
-  // Function to handle edit playlist
   const handleEditPlaylist = (playlist: Playlist) => {
     setNewPlaylist({ name: playlist.name, description: playlist.description });
     setEditMode(true);
@@ -165,24 +170,26 @@ const Page = () => {
     openModal();
   };
 
-  // Render loading state
+  const closeVideoPopup = () => {
+    setShowVideoPopup(false);
+    setSelectedPlaylistVideos([]);
+  };
+
   if (loading) {
     return <div className="h-[calc(100vh-64px)] flex items-center justify-center">Loading...</div>;
   }
 
-  // Render error state
   if (error) {
     return <div className="h-[calc(100vh-64px)] flex items-center justify-center text-red-500">{error}</div>;
   }
 
-  // Render playlists
   return (
     <div className="container mx-auto px-4 py-8 bg-black min-h-screen mt-20 relative">
       <button
         onClick={openModal}
-        className="fixed right-8  bg-black text-white rounded-full p-4 shadow-lg focus:outline-none"
+        className="fixed right-8 bg-black text-white rounded-full p-4 shadow-lg focus:outline-none"
       >
-        <FaPlus className="w-6 h-6" /> {/* Using the plus icon from react-icons */}
+        <FaPlus className="w-6 h-6" />
       </button>
       <h1 className="text-3xl font-bold mb-8 text-white">Your Playlists</h1>
       {playlists.length === 0 ? (
@@ -192,55 +199,80 @@ const Page = () => {
           {playlists.map((playlist) => (
             <div
               key={playlist._id}
-              className="bg-black p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+              className="bg-black p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer relative"
               onClick={() => handlePlaylistClick(playlist)}
             >
               <div className="w-full h-48 bg-gray-700 rounded-md overflow-hidden">
                 {playlist.videos.length > 0 && videos[playlist.videos[0]] ? (
                   <img src={videos[playlist.videos[0]].thumbnail} alt={playlist.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-300">No Thumbnail</div>
+                  <div className="w-full h-full flex items-center justify-center text-gray-300">No Videos</div>
                 )}
               </div>
-              <div className='flex flex-row mt-2 ml-2 justify-between'>
-                <h2 className="text-xl font-semibold text-white ">{playlist.name}</h2>
-                <div className="relative">
-                  <FaEllipsisV className='mt-3 cursor-pointer' onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation()
-                    handleOptionsClick(playlist._id)
-                  }
-                  } />
-                  {showOptions === playlist._id && (
-                    <div className="absolute right-0 mt-2 w-48 bg-black rounded-md shadow-lg z-10">
-                      <button
-                        className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-white hover:text-black"
-                        onClick={() => handleDeletePlaylist(playlist._id)}
-                      >
-                        Delete
-                      </button>
-                      <button
-                        className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-white hover:text-black"
-                        onClick={(e) => {
-                        e.stopPropagation()
-                          handleEditPlaylist(playlist);
-                          setShowOptions(null);
-                        }}
-                      >
-                        Edit
-                      </button>
-                    </div>
-                  )}
-                </div>
+              <div className="flex justify-between items-center mt-2">
+                <h2 className="text-xl font-semibold text-white">{playlist.name}</h2>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent triggering the playlist click
+                    handleOptionsClick(playlist._id);
+                  }}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <FaEllipsisV />
+                </button>
               </div>
+              {showOptions === playlist._id && (
+                <div className="absolute  right-1 bg-gray-800 rounded-md shadow-lg p-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditPlaylist(playlist)}}
+                    className="block text-white hover:bg-gray-700 w-full text-left p-2"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeletePlaylist(playlist._id)}}
+                    className="block text-red-500 hover:bg-gray-700 w-full text-left p-2"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
       )}
 
-      {/* Plus Icon Button */}
+      {showVideoPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h2 className="text-2xl font-semibold text-white mb-4">Videos</h2>
+            <div className="flex flex-col">
+              {selectedPlaylistVideos.map((video) => (
+                <button
+                  key={video._id}
+                  className="text-lg text-white rounded-full border border-gray-600 p-2 m-1 hover:bg-gray-600"
+                  onClick={() => handleVideoClick(video._id)}
+                >
+                  {video.title}
+                </button>
+              ))}
+            </div>
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={closeVideoPopup}
+                className="px-6 py-2 rounded-full bg-black text-white hover:bg-white hover:text-black"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      {/* Modal for creating or editing a playlist */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md">

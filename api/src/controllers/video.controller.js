@@ -5,6 +5,7 @@ import { User } from "../models/user.model.js";
 import { Video } from "../models/video.model.js";
 import { uploadOnCloudinary ,deleteFromCloudinaryByUrl} from "../utils/cloudinary.js";
 import { Comment } from "../models/comment.model.js"; // Ensure Comment model is imported
+import { Playlist } from "../models/playlist.model.js";
 
 const uploadVideo = asyncHandler(async (req, res) => {
     const {title, description} = req.body;
@@ -72,6 +73,12 @@ const deleteVideo = asyncHandler(async (req, res) => {
     try {
         // Delete comments associated with the video
         await Comment.deleteMany({ video: videoId }); // Delete comments related to the video
+
+        // Remove video from all playlists
+        await Playlist.updateMany(
+            { videos: videoId },
+            { $pull: { videos: videoId } }
+        );
 
         const videoFileUrl = video.videoFile;   
         const thumbnailUrl = video.thumbnail;
