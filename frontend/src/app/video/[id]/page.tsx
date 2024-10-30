@@ -80,22 +80,35 @@ export default function VideoPage() {
 
   const handleVideoWatch = async () => {
     try {
+      // Update video views
       const response = await fetch(`/api/v1/videos/update-views/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-      })
+      });
       if (!response.ok) {
-        throw new Error('Failed to update views')
+        throw new Error('Failed to update views');
       }
-      const data = await response.json()
+      const data = await response.json();
       setVideo((prevVideo: any) => ({
         ...prevVideo,
-        views: data.data.views
-      }))
+        views: data.data.views,
+      }));
+
+      // Add video to watch history
+      const watchHistoryResponse = await fetch(`/api/v1/users/addToWatchHistory`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ videoId: id }),
+      });
+      if (!watchHistoryResponse.ok) {
+        throw new Error('Failed to add video to watch history');
+      }
     } catch (error) {
-      console.error('Failed to update views', error)
+      console.error('Failed to update views or add to watch history', error);
     }
   }
 

@@ -201,4 +201,24 @@ const getWatchHistory = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, user[0].watchHistory, "Watch history fetched successfully"));
 });
 
-export { changeUserPassword, getCurrentUser, updateAccountDetails, updateAvatar, updateCoverImage, deleteUser, getWatchHistory , getUserChannelDetails};
+const addToWatchHistory = asyncHandler(async (req, res) => {
+    const { videoId } = req.body; // Get videoId from request body
+    const user = await User.findById(req.user._id); // Find the user
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    // Check if videoId is already in watchHistory
+    if (user.watchHistory.includes(videoId)) {
+        return res.status(400).json(new ApiResponse(400, false, "Video already in watch history"));
+    }
+
+    // Add videoId to watchHistory
+    user.watchHistory.push(videoId);
+    await user.save(); // Save the updated user
+
+    return res.status(200).json(new ApiResponse(200, user.watchHistory, "Video added to watch history successfully"));
+});
+
+export { changeUserPassword, getCurrentUser, updateAccountDetails, updateAvatar, updateCoverImage, deleteUser, getWatchHistory , getUserChannelDetails, addToWatchHistory};
