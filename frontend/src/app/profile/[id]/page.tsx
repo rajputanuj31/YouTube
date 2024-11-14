@@ -223,7 +223,7 @@ export default function Profile() {
         }
       });
       console.log("success");
-      
+
       if (response.ok) {
         // Refresh the video list or remove the deleted video from state
         setVideos(prev => prev.filter(video => video._id !== videoId));
@@ -427,11 +427,34 @@ export default function Profile() {
           <div className="w-full px-4 sm:px-6 lg:px-8">
             <div className="flex ">
               <h2 className="text-2xl font-bold m-1 cursor-pointer" onClick={() => { setShowVideos(true); setShowWatchHistory(false); }}>Videos</h2>
-              <hr className="border-l-2 border-gray-600 h-8 mx-2 mt-1" />
-              <h2 className="text-2xl font-bold m-1 cursor-pointer" onClick={() => { setShowWatchHistory(true); setShowVideos(false); }}>Watch History</h2>
-              <hr className="border-l-2 border-gray-600 h-8 mx-2 mt-1" />
-              <h2 className="text-2xl font-bold m-1 cursor-pointer" onClick={() => { setShowVideos(false); setShowWatchHistory(false); }}>PlayLists</h2>
-            </div>
+              {currentUser._id === id && (
+                <>
+                <hr className="border-l-2 border-gray-600 h-8 mx-2 mt-1" />
+                  <h2
+                    className="text-2xl font-bold m-1 cursor-pointer"
+                    onClick={() => {
+                      setShowWatchHistory(true);
+                      setShowVideos(false);
+                    }}
+                  >
+                    Watch History
+                  </h2>
+                  <hr className="border-l-2 border-gray-600 h-8 mx-2 mt-1" />
+                </>
+              )}              
+              {currentUser._id === id && (
+                <>
+                  <h2
+                    className="text-2xl font-bold m-1 cursor-pointer"
+                    onClick={() => {
+                      setShowVideos(false);
+                      setShowWatchHistory(false);
+                    }}
+                  >
+                    PlayLists
+                  </h2>
+                </>
+              )}            </div>
             <hr className="w-full h-1 border-gray-800" />
 
             {showVideos ? (
@@ -456,7 +479,7 @@ export default function Profile() {
                               size={20}
                               onClick={(e) => {
                                 e.preventDefault();
-                                togglePopup(video._id);                           
+                                togglePopup(video._id);
                               }}
                             />
                             {/* Popup for video options */}
@@ -531,7 +554,7 @@ export default function Profile() {
               </div>
             ) : (
               <div >
-                <Playlist showTitle={true} additionalClasses="pt-0" /> 
+                <Playlist showTitle={true} additionalClasses="pt-0" />
               </div>
             )}
           </div>

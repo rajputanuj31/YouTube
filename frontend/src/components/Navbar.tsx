@@ -100,7 +100,7 @@ export default function Navbar({ toggleSidebar }: { toggleSidebar?: () => void }
                 <button className="mr-4 text-white hover:text-gray-300" onClick={toggleSidebar}>
                     <FaBars size={24} />
                 </button>
-                <h1 className="text-2xl font-bold text-white cursor-pointer" onClick={handleLogoClick}>Logo</h1>
+                <h1 className="text-2xl font-bold text-white cursor-pointer" onClick={handleLogoClick}>PlayTube</h1>
             </div>
             <div className="flex-grow flex justify-center">
                 <div className="relative w-1/2">

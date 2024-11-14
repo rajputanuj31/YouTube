@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getTimeAgo } from '../utils/getTimeAgo';
 import Image from "next/image";
+import { useSelector } from 'react-redux';
 
 interface WatchHistoryProps {
   showTitle?: boolean;
@@ -13,11 +14,13 @@ const WatchHistory: React.FC<WatchHistoryProps> = ({ showTitle = true, additiona
     const [history, setHistory] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const currentUser = useSelector((state: any) => state.user.currentUser?.data?.user);
+
 
     useEffect(() => {
         const fetchWatchHistory = async () => {
             try {
-                const response = await fetch('/api/v1/users/watch-history', {
+                const response = await fetch(`/api/v1/users/watch-history/${currentUser._id}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -27,6 +30,7 @@ const WatchHistory: React.FC<WatchHistoryProps> = ({ showTitle = true, additiona
                     throw new Error('Failed to fetch watch history');
                 }
                 const data = await response.json();
+                
                 setHistory(data.data);
             } catch (error) {
                 setError((error as Error).message);
@@ -48,7 +52,7 @@ const WatchHistory: React.FC<WatchHistoryProps> = ({ showTitle = true, additiona
 
     return (
         <div className={`${additionalClasses}`}>
-            {showTitle && <h1 className="text-2xl font-bold">Watch History</h1>}
+            {showTitle && <h1 className="text-2xl font-bold">Recent Watched</h1>}
             {history.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mx-2 mt-4">
                     {history.map((video) => (

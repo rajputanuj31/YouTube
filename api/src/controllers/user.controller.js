@@ -159,10 +159,16 @@ const getUserChannelDetails = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, channelDetails[0], "Channel details fetched successfully"));
 });
 
-const getWatchHistory = asyncHandler(async (req, res) => {
+const getWatchHistory = asyncHandler(async (req, res) => {   
+    const { userId } = req.params;
+    
+
+    if (!userId) {
+        throw new ApiError(400, "User is not logged in");
+    } 
     const user = await User.aggregate([
         {
-            $match: {_id: new mongoose.Types.ObjectId(req.user._id)}
+            $match: {_id: new mongoose.Types.ObjectId(userId)}
         },
         {
             $lookup: {
