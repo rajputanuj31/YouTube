@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from 'react';
-import axios from 'axios';
+import { FaTimes } from 'react-icons/fa';
+import api from '@/lib/api';
 import { useRouter } from 'next/navigation';
 
 interface VideoUploadData {
@@ -46,7 +47,7 @@ const UploadVideo = () => {
       if (videoData.videoFile) formData.append('videoFile', videoData.videoFile);
       if (videoData.thumbnail) formData.append('thumbnail', videoData.thumbnail);
 
-      const response = await axios.post('/api/v1/videos/upload-video', formData, {
+      const response = await api.post('/videos/upload-video', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -67,9 +68,16 @@ const UploadVideo = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-gray-800 rounded-lg shadow-lg p-8">
-        <h1 className="text-3xl font-bold text-white mb-6 text-center">Upload Video</h1>
+    <div className="min-h-screen bg-black flex items-center justify-center px-3 sm:px-4 pt-20 pb-8">
+      <div className="max-w-md w-full bg-gray-800/80 rounded-xl shadow-lg p-4 sm:p-8 relative">
+        <button
+          onClick={() => router.back()}
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-white transition-colors"
+          aria-label="Close"
+        >
+          <FaTimes size={20} />
+        </button>
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-6 text-center">Upload Video</h1>
         <form onSubmit={uploadVideo} className="space-y-6">
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-1">Title</label>

@@ -99,78 +99,65 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex flex-1 bg-black pt-16">
-        <main className={`flex-1 p-6 transition-all duration-300 `}>
-          {/* Top navigation */}
-          <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-            <h2 className="text-xl font-bold text-white mb-4 sm:mb-0">All</h2>
-            <div className="flex flex-wrap justify-center sm:justify-end gap-2">
-              <button className="py-2 px-4 bg-white text-black rounded hover:bg-gray-200 transition-colors">All</button>
-              <button className="py-2 px-4 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors">Gaming</button>
-              <button className="py-2 px-4 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors">Music</button>
-              <button className="py-2 px-4 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors">Sports leagues</button>
-              <button className="py-2 px-4 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors">
-                UI design
-              </button>
-              <button className="py-2 px-4 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors">Cricket</button>
-              <button className="py-2 px-4 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors">Mixes</button>
-              <button className="py-2 px-4 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors">Live</button>
+        <main className="flex-1 p-3 sm:p-4 md:p-6 transition-all duration-300 min-w-0">
+          {/* Category filters */}
+          {/* <div className="mb-4 sm:mb-6 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex gap-2 min-w-max">
+              <button className="py-1.5 sm:py-2 px-3 sm:px-4 bg-white text-black rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors active:scale-95">All</button>
+              {["Gaming", "Music", "Sports", "UI design", "Cricket", "Mixes", "Live"].map(cat => (
+                <button key={cat} className="py-1.5 sm:py-2 px-3 sm:px-4 bg-gray-800 text-white rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors active:scale-95 whitespace-nowrap">{cat}</button>
+              ))}
             </div>
-          </div>
+          </div> */}
 
           {/* Video Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {/* Video Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
             {videos.map((video: any) => (
               <Link href={`/video/${video._id}`} key={video._id}>
-                <div className="bg-black rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow hover:border hover:border-gray-600 w-72 h-72"> {/* Fixed size for video window */}
-                  <div className="relative aspect-video">
+                <div className="group bg-black rounded-xl overflow-hidden hover:bg-gray-900/50 transition-all duration-200">
+                  <div className="relative aspect-video rounded-xl overflow-hidden">
                     <Image 
                       src={video.thumbnail || "/default-thumbnail.jpg"} 
                       alt={video.title} 
-                      layout="fill" 
-                      objectFit="cover"
-                      unoptimized={true}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      unoptimized
                     />
-                    <p className="text-white text-sm absolute bottom-2 right-2 bg-black bg-opacity-50 p-1 rounded-lg">{(parseFloat(video.duration) / 60).toFixed(2)} </p>
+                    <span className="absolute bottom-2 right-2 bg-black/80 text-white text-xs font-medium px-1.5 py-0.5 rounded">{(parseFloat(video.duration) / 60).toFixed(2)}</span>
                   </div>
-                  <div className="p-4">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-white font-semibold mb-1 line-clamp-2 overflow-hidden">{video.title}</h3>
-                      <FaEllipsisV
-                        className="text-gray-400 hover:text-white cursor-pointer"
-                        size={20}
+                  <div className="p-2 pt-3">
+                    <div className="flex justify-between items-start gap-2">
+                      <h3 className="text-white font-medium text-sm sm:text-base line-clamp-2 leading-snug">{video.title}</h3>
+                      <button
+                        className="text-gray-400 hover:text-white p-1 flex-shrink-0 transition-colors"
                         onClick={(e) => {
                           e.preventDefault();
-                          togglePopup(video._id);                           
+                          togglePopup(video._id);
                         }}
-                      />
-                    {/* Popup for video options */}
+                        aria-label="Video options"
+                      >
+                        <FaEllipsisV size={14} />
+                      </button>
+                    </div>
                     {popupVideoId === video._id && (
-                      <div className="absolute bg-gray-800 text-white rounded-lg shadow-lg w-40 z-50 ml-10 mt-16"> {/* Added mt-2 for spacing */}
+                      <div className="absolute right-4 mt-1 bg-gray-800 text-white rounded-lg shadow-xl border border-gray-700/50 w-44 z-50 overflow-hidden">
                         <button
-                          className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "
-                          onClick={(e) => {
-                            e.preventDefault();
-                            openPlaylistPopup(video._id);
-                          }}
+                          className="flex items-center gap-2 w-full text-left py-2.5 px-3 text-sm hover:bg-gray-700 transition-colors"
+                          onClick={(e) => { e.preventDefault(); openPlaylistPopup(video._id); }}
                         >
-                          <FaPlus className="mr-2" /> Save to Playlist
+                          <FaPlus size={12} /> Save to Playlist
                         </button>
                         <button
-                          className="flex items-center w-full text-left py-2 px-3 hover:bg-white hover:text-gray-900 "
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleShareVideo(video._id);
-                          }}
+                          className="flex items-center gap-2 w-full text-left py-2.5 px-3 text-sm hover:bg-gray-700 transition-colors"
+                          onClick={(e) => { e.preventDefault(); handleShareVideo(video._id); }}
                         >
-                          <FaShareAlt className="mr-2" /> Share
+                          <FaShareAlt size={12} /> Share
                         </button>
                       </div>
                     )}
-                    </div>
-                    <p className="text-gray-400 text-sm">{video.ownerUsername}</p>
-                    <div className="flex justify-between items-center">
-                      <p className="text-gray-400 text-sm">{video.views} views • {getTimeAgo(video.createdAt)}</p>
-                    </div>
+                    <p className="text-gray-400 text-xs sm:text-sm mt-1">{video.ownerUsername}</p>
+                    <p className="text-gray-500 text-xs sm:text-sm">{video.views} views • {getTimeAgo(video.createdAt)}</p>
                   </div>
                 </div>
               </Link>
@@ -178,18 +165,19 @@ export default function Home() {
           </div>
 
           {/* Pagination */}
-          <div className="flex justify-center mt-6">
+          <div className="flex justify-center items-center gap-3 mt-8 mb-4">
             <button
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 bg-gray-700 text-white rounded mr-2 disabled:opacity-50"
+              className="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-medium hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Previous
             </button>
+            <span className="text-gray-400 text-sm">{currentPage} / {totalPages}</span>
             <button
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-gray-700 text-white rounded disabled:opacity-50"
+              className="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-medium hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Next
             </button>
@@ -199,8 +187,8 @@ export default function Home() {
 
       {/* Playlist Popup */}
       {playlistPopupVideoId && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md">
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50" role="dialog" aria-modal="true" aria-label="Select Playlists">
+          <div className="bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 w-[95vw] max-w-md mx-4">
             <h2 className="text-2xl font-semibold text-white mb-4">Select Playlists</h2>
             <div className="p-2">
               {playlists.map((playlist: any) => (

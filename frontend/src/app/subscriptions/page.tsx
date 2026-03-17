@@ -79,7 +79,11 @@ export default function SubscriptionsPage() {
   }
 
   if (loading) {
-    return <div className="h-screen flex items-center justify-center">Loading...</div>
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-gray-600 border-t-white rounded-full animate-spin" />
+      </div>
+    )
   }
 
   if (error) {
@@ -87,39 +91,39 @@ export default function SubscriptionsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 bg-black min-h-screen mt-20">
-      <h1 className="text-3xl font-bold mb-8 text-white">Your Subscriptions</h1>
+    <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 bg-black min-h-screen pt-20">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-white">Your Subscriptions</h1>
       {subscribedChannels.length === 0 ? (
-        <p className="text-gray-300 text-lg">You haven't subscribed to any channels yet.</p>
+        <p className="text-gray-400 text-base">You haven&apos;t subscribed to any channels yet.</p>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {subscribedChannels.map((channel: Channel) => (
             <div 
               key={channel._id} 
-              className="bg-gray-800 rounded-lg p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex items-center justify-between"
+              className="bg-gray-900/50 rounded-xl p-3 sm:p-4 hover:bg-gray-800/60 transition-colors duration-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
             >
               <div 
-                className="flex items-center cursor-pointer"
+                className="flex items-center gap-3 sm:gap-4 cursor-pointer min-w-0"
                 onClick={() => router.push(`/profile/${channel.channel}`)}
               >
-                <div className="w-20 h-20 mr-4 flex-shrink-0">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0">
                   <img
                     src={channel.channelDetails?.avatar || '/default-avatar.png'}
                     alt={channel.channelDetails?.fullName || 'Channel'}
                     className="w-full h-full object-cover rounded-full"
                   />
                 </div>
-                <div>
-                  <h2 className="text-xl font-semibold text-white">
+                <div className="min-w-0">
+                  <h2 className="text-base sm:text-lg font-semibold text-white truncate">
                     {channel.channelDetails?.fullName || 'Unknown Channel'}
                   </h2>
-                  <p className="text-gray-400 text-sm">
+                  <p className="text-gray-400 text-xs sm:text-sm">
                     @{channel.channelDetails?.username || 'unknown'} • {channel.totalSubscribers || 0} subscribers
                   </p>
                 </div>
               </div>
               <button 
-                className="px-4 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors duration-200"
+                className="px-4 py-2 bg-gray-700 text-white text-sm rounded-full hover:bg-red-600 transition-colors duration-200 flex-shrink-0 w-full sm:w-auto active:scale-95"
                 onClick={() => toggleSubscribe(channel.channel)}
               >
                 Unsubscribe

@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import Login from './Auth/login';
 import Register from './Auth/Register';
-import axios from 'axios';
+import api from '@/lib/api';
 import { signOut } from '../app/store/user/userSlice';
 
 export default function Navbar({ toggleSidebar }: { toggleSidebar?: () => void }) {
@@ -65,7 +65,7 @@ export default function Navbar({ toggleSidebar }: { toggleSidebar?: () => void }
 
     const handleSignOut = async () => {
         try {
-            await axios.post('/api/auth/logout');
+            await api.post('/users/logout');
             dispatch(signOut());
             setShowUserMenu(false);
             router.push('/');
@@ -96,40 +96,34 @@ export default function Navbar({ toggleSidebar }: { toggleSidebar?: () => void }
             className="flex items-center bg-black justify-between p-3 backdrop-blur-xl fixed top-0 left-0 right-0 z-50 border-b border-gray-800"
 
         >
-            <div className="flex items-center">
-                <button className="mr-4 text-white hover:text-gray-300" onClick={toggleSidebar}>
-                    <FaBars size={24} />
+            <div className="flex items-center flex-shrink-0">
+                <button className="mr-2 sm:mr-4 text-white hover:text-gray-300 transition-colors p-1" onClick={toggleSidebar} aria-label="Toggle sidebar">
+                    <FaBars size={22} />
                 </button>
-                <h1 className="text-2xl font-bold text-white cursor-pointer" onClick={handleLogoClick}>PlayTube</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-white cursor-pointer" onClick={handleLogoClick}>PlayTube</h1>
             </div>
-            <div className="flex-grow flex justify-center">
-                <div className="relative w-1/2">
+            <div className="flex-1 flex justify-center mx-2 sm:mx-4">
+                <div className="relative w-full max-w-md sm:max-w-lg">
                     <input
                         type="text"
                         placeholder="Search..."
-                        className="w-full py-2 px-4 rounded-full focus:outline-none border border-gray-800"
-                        style={{
-                            background: 'rgba(17, 19, 19, 0.4)',
-                            borderRadius: '10px',
-                            boxShadow: '0 .5rem 1rem rgba(194, 192, 192, 0.10) !important',
-                            color: '#fff',
-                            fontSize: '16px',
-                            height: '2rem',
-                        }}
+                        aria-label="Search videos"
+                        className="w-full py-1.5 sm:py-2 pl-4 pr-10 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600 border border-gray-700 bg-gray-900/60 text-white text-sm sm:text-base transition-colors"
                     />
-                    <button className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300">
-                        <FaSearch size={18} />
+                    <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors" aria-label="Search">
+                        <FaSearch size={16} />
                     </button>
                 </div>
             </div>
             {currentUser ? (
                 <div className="flex items-center">
                     <button 
-                        className="text-white hover:text-gray-300 mr-8" 
+                        className="text-white hover:text-gray-300 mr-3 sm:mr-6 transition-colors" 
                         onClick={handleUploadVideo}
                         title="Upload Video"
+                        aria-label="Upload video"
                     >
-                        <FaUpload size={20} />
+                        <FaUpload size={18} />
                     </button>
                     <div className="relative" ref={userMenuRef}>
                         <button className="text-white hover:text-gray-300" onClick={handleAvatarClick}>
@@ -146,28 +140,28 @@ export default function Navbar({ toggleSidebar }: { toggleSidebar?: () => void }
                             )}
                         </button>
                         {showUserMenu && (
-                            <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-black ring-1 ring-black ring-opacity-5">
+                            <div className="absolute right-0 mt-2 w-52 rounded-lg shadow-xl bg-gray-900 border border-gray-700/50 overflow-hidden">
                                 <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                                     <button
                                         onClick={handleProfileClick}
-                                        className="block px-4 py-2 text-sm text-white hover:bg-gray-100 hover:text-gray-900 w-full text-left"
+                                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-200 hover:bg-gray-800 hover:text-white w-full text-left transition-colors"
                                         role="menuitem"
                                     >
-                                        <FaUserCircle className="inline-block mr-2" /> Profile Details
+                                        <FaUserCircle /> Profile Details
                                     </button>
                                     <button
                                         onClick={handleSignOut}
-                                        className="block px-4 py-2 text-sm text-white hover:bg-gray-100 hover:text-gray-900 w-full text-left"
+                                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-200 hover:bg-gray-800 hover:text-white w-full text-left transition-colors"
                                         role="menuitem"
                                     >
-                                        <FaSignOutAlt className="inline-block mr-2" /> Sign Out
+                                        <FaSignOutAlt /> Sign Out
                                     </button>
                                     <button
                                         onClick={handleDeleteAccount}
-                                        className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 hover:text-red-700 w-full text-left"
+                                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:bg-gray-800 hover:text-red-300 w-full text-left transition-colors"
                                         role="menuitem"
                                     >
-                                        <FaTrash className="inline-block mr-2" /> Delete Account
+                                        <FaTrash /> Delete Account
                                     </button>
                                 </div>
                             </div>
@@ -177,29 +171,29 @@ export default function Navbar({ toggleSidebar }: { toggleSidebar?: () => void }
             ) : (
                 <div className="relative">
                     <button
-                        className="text-white hover:text-gray-300 px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700"
+                        className="text-white text-sm sm:text-base px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-blue-600 hover:bg-blue-700 transition-colors font-medium flex-shrink-0"
                         onClick={toggleLogin}
                     >
                         Sign In
                     </button>
                     {showLogin && (
-                        <div className="absolute right-0 mt-2 w-80 rounded-lg overflow-hidden shadow-lg">
-                            <div className="bg-white p-4">
-                                <h2 className="text-lg font-semibold mb-4">Sign In</h2>
-                                <Login />
-                                <div className="mt-4 text-sm text-gray-600">
-                                    <p>Don't have an account? <a href="#" className="text-blue-600 hover:underline" onClick={toggleRegister}>Sign up</a></p>
+                        <div className="absolute right-0 mt-2 w-[min(95vw,320px)] rounded-lg overflow-hidden shadow-2xl border border-gray-700/50">
+                            <div className="bg-gray-900 p-4">
+                                <h2 className="text-lg font-semibold text-white mb-4">Sign In</h2>
+                                <Login onSuccess={() => setShowLogin(false)} />
+                                <div className="mt-4 text-sm text-gray-400">
+                                    <p>Don&apos;t have an account? <button className="text-blue-400 hover:underline" onClick={toggleRegister}>Sign up</button></p>
                                 </div>
                             </div>
                         </div>
                     )}
                     {showRegister && (
-                        <div className="absolute right-0 mt-2 w-80 rounded-lg overflow-hidden shadow-lg">
-                            <div className="bg-white p-4">
-                                <h2 className="text-lg font-semibold mb-4">Sign Up</h2>
-                                <Register />
-                                <div className="mt-4 text-sm text-gray-600">
-                                    <p>Already have an account? <a href="#" className="text-blue-600 hover:underline" onClick={toggleLogin}>Sign in</a></p>
+                        <div className="absolute right-0 mt-2 w-[min(95vw,320px)] rounded-lg overflow-hidden shadow-2xl border border-gray-700/50 max-h-[80vh] overflow-y-auto">
+                            <div className="bg-gray-900 p-4">
+                                <h2 className="text-lg font-semibold text-white mb-4">Sign Up</h2>
+                                <Register onSuccess={toggleLogin} />
+                                <div className="mt-4 text-sm text-gray-400">
+                                    <p>Already have an account? <button className="text-blue-400 hover:underline" onClick={toggleLogin}>Sign in</button></p>
                                 </div>
                             </div>
                         </div>

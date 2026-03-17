@@ -113,7 +113,11 @@ export default function VideoPage() {
   }
 
   if (loading) {
-    return <div className="h-[calc(100vh-64px)] flex items-center justify-center">Loading...</div>
+    return (
+      <div className="h-[calc(100vh-64px)] flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-gray-600 border-t-white rounded-full animate-spin" />
+      </div>
+    )
   }
 
   if (error) {
@@ -175,33 +179,38 @@ export default function VideoPage() {
     }
   }
   return (
-    <div className="flex w-full h-full bg-black pt-[69px]">
-      <div className="ml-5 mt-5 flex-grow bg-black shadow-lg rounded-lg overflow-hidden min-w-[800px]">
-        <div className="h-[500px]">
-          <video controls className="w-full h-full object-cover" onPlay={handleVideoWatch}>
+    <div className="flex flex-col lg:flex-row w-full bg-black pt-16 min-h-screen">
+      <div className="flex-1 min-w-0 px-2 sm:px-4 lg:px-6 pt-4">
+        {/* Video Player */}
+        <div className="aspect-video w-full rounded-xl overflow-hidden bg-gray-900">
+          <video controls className="w-full h-full object-contain" onPlay={handleVideoWatch}>
             <source src={video.videoFile} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </div>
-        <h1 className="text-white text-2xl font-bold mb-1">{video.title}</h1>
-        <div className="flex items-center justify-between ml-2 mr-2">
-          <div className="flex items-center">
-            {videoOwner && videoOwner.avatar && (
+
+        {/* Title */}
+        <h1 className="text-white text-lg sm:text-xl lg:text-2xl font-bold mt-3 px-1">{video.title}</h1>
+
+        {/* Channel info + Actions */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-3 px-1">
+          <div className="flex items-center gap-3">
+            {videoOwner?.avatar && (
               <img
                 src={videoOwner.avatar}
                 alt={videoOwner.name}
-                className="w-10 h-10 rounded-full mr-2 cursor-pointer"
+                className="w-10 h-10 rounded-full cursor-pointer object-cover flex-shrink-0"
                 onClick={handleAvatarClick}
               />
             )}
-            <div className="flex flex-col">
-              <p className="text-white text-sm font-bold">{videoOwner?.fullName}</p>
-              <p className="text-white text-xs">{videoOwner?.totalSubscribers} subscribers</p>
+            <div>
+              <p className="text-white text-sm font-semibold">{videoOwner?.fullName}</p>
+              <p className="text-gray-400 text-xs">{videoOwner?.totalSubscribers} subscribers</p>
             </div>
             {videoOwner && currentUser && videoOwner._id !== currentUser._id && (
               <button
-                className={`ml-4 mt-2 px-6 py-2 rounded-full transition-colors duration-200 ${isSubscribed
-                  ? 'bg-gray-500 text-white hover:bg-gray-600'
+                className={`ml-2 px-4 sm:px-6 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${isSubscribed
+                  ? 'bg-gray-700 text-white hover:bg-gray-600'
                   : 'bg-white text-black hover:bg-gray-200'
                   }`}
                 onClick={toggleSubscribe}
@@ -210,30 +219,33 @@ export default function VideoPage() {
               </button>
             )}
           </div>
-          <div className="flex items-center space-x-3 ">
-            <button className="text-white flex items-center bg-gray-700 rounded-full px-4 py-2 hover:bg-gray-600 transition-colors duration-200"
-            onClick={toggleLike}
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              className="text-white flex items-center gap-1.5 bg-gray-800 rounded-full px-3 sm:px-4 py-2 text-sm hover:bg-gray-700 transition-colors active:scale-95"
+              onClick={toggleLike}
             >
-              <FaThumbsUp className="mr-1" /> {likes.length} 
+              <FaThumbsUp size={14} /> {likes.length}
             </button>
-
-            <button className="text-white flex items-center bg-gray-700 rounded-full px-4 py-2 hover:bg-gray-600 transition-colors duration-200">
-              <FaDownload className="mr-1" /> Download
+            <button className="text-white flex items-center gap-1.5 bg-gray-800 rounded-full px-3 sm:px-4 py-2 text-sm hover:bg-gray-700 transition-colors active:scale-95">
+              <FaDownload size={14} /> <span className="hidden sm:inline">Download</span>
             </button>
-            <button className="text-white flex items-center bg-gray-700 rounded-full px-4 py-2 hover:bg-gray-600 transition-colors duration-200">
-              <FaShare className="mr-1" /> Share
+            <button className="text-white flex items-center gap-1.5 bg-gray-800 rounded-full px-3 sm:px-4 py-2 text-sm hover:bg-gray-700 transition-colors active:scale-95">
+              <FaShare size={14} /> <span className="hidden sm:inline">Share</span>
             </button>
           </div>
         </div>
-        <div className="bg-gray-900 p-4 mt-2 rounded-md">
-          <h1>{video.views} views • {getTimeAgo(video.createdAt)}</h1>
-          <p className="text-white text-sm">{video.description}</p>
+
+        {/* Description */}
+        <div className="bg-gray-900/60 p-3 sm:p-4 mt-3 rounded-xl">
+          <p className="text-gray-300 text-sm font-medium">{video.views} views • {getTimeAgo(video.createdAt)}</p>
+          <p className="text-gray-200 text-sm mt-1">{video.description}</p>
         </div>
 
         <Comments setComments={setComments} currentUser={currentUser} videoId={id} />
       </div>
 
-      <div className="w-full max-w-[480px]">
+      {/* Suggestions - stacks below on mobile, sidebar on desktop */}
+      <div className="w-full lg:w-[400px] xl:w-[420px] lg:min-w-[360px] flex-shrink-0">
         <SuggestionVideos />
       </div>
     </div>

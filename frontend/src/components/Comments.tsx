@@ -80,25 +80,18 @@ const Comments: React.FC<CommentsProps> = ({ setComments, currentUser, videoId }
   };
 
   return (
-    <div className="bg-black p-4 mt-2 rounded-md"> {/* Comments section */}
-      <h2 className="text-white text-lg font-bold">Comments ({comments.length})</h2>
-      <form onSubmit={handleCommentSubmit} className="mt-2">
+    <div className="bg-black p-3 sm:p-4 mt-3 rounded-xl">
+      <h2 className="text-white text-base sm:text-lg font-bold">Comments ({comments.length})</h2>
+      <form onSubmit={handleCommentSubmit} className="mt-3">
         <input
           type="text"
-          placeholder="Add Comment"
-          value={comment} // Bind the input value to the comment state
-          onChange={(e) => setComment(e.target.value)} // Update the comment state on input change
-          className="w-full py-2 px-4 rounded-full focus:outline-none border border-gray-800"
-          style={{
-            background: 'rgba(17, 19, 19, 0.4)',
-            borderRadius: '10px',
-            boxShadow: '0 .5rem 1rem rgba(194, 192, 192, 0.10) !important',
-            color: '#fff',
-            fontSize: '16px',
-            height: '4rem',
-          }}
+          placeholder="Add a comment..."
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          className="w-full py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-600 border border-gray-700 bg-gray-900/60 text-white text-sm sm:text-base transition-colors"
+          aria-label="Add a comment"
         />
-        <button type="submit" className="mt-2 bg-gray-800 text-white px-4 py-2 rounded-full ">Comment</button>
+        <button type="submit" className="mt-2 bg-gray-800 text-white text-sm px-5 py-2 rounded-full hover:bg-gray-700 transition-colors active:scale-95 disabled:opacity-50" disabled={!comment.trim()}>Comment</button>
       </form>
       <div className="mt-4">
         {comments.length > 0 ? (

@@ -216,7 +216,11 @@ const Playlist: React.FC<PlaylistProps> = ({ showTitle = true, additionalClasses
   };
 
   if (loading) {
-    return <div className="h-[calc(100vh-64px)] flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="h-[calc(100vh-64px)] flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-gray-600 border-t-white rounded-full animate-spin" />
+      </div>
+    );
   }
 
   if (error) {
@@ -290,7 +294,7 @@ const Playlist: React.FC<PlaylistProps> = ({ showTitle = true, additionalClasses
         </div>
       )}
       {showVideoPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" role="dialog" aria-modal="true" aria-label="Playlist Videos">
           <div className="bg-gray-900 rounded-xl shadow-2xl p-8 w-full max-w-lg">
             <h2 className="text-3xl font-bold text-white mb-6 text-center">Videos</h2>
             <div className="space-y-3">
@@ -342,7 +346,7 @@ const Playlist: React.FC<PlaylistProps> = ({ showTitle = true, additionalClasses
 
 
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50" role="dialog" aria-modal="true" aria-label={editMode ? 'Edit Playlist' : 'Create Playlist'}>
           <div className="bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md">
             <h2 className="text-2xl font-semibold text-white mb-4">{editMode ? 'Edit Playlist' : 'Create Playlist'}</h2>
             <input

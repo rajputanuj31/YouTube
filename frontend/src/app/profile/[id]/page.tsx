@@ -13,6 +13,7 @@ import WatchHistory from "@/app/watchHistory/page" // Importing WatchHistory com
 export default function Profile() {
   const { error, loading } = useSelector((state: any) => state.user)
   const currentUser = useSelector((state: any) => state.user.currentUser?.data.user)
+  const accessToken = useSelector((state: any) => state.user.currentUser?.data?.accessToken)
   const { id } = useParams()
   const [isClient, setIsClient] = useState(false)
   const [videos, setVideos] = useState<any[]>([])
@@ -93,7 +94,7 @@ export default function Profile() {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${currentUser.token}`
+            'Authorization': `Bearer ${accessToken}`
           },
           body: JSON.stringify(formData)
         });
@@ -120,7 +121,7 @@ export default function Profile() {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${currentUser.token}`
+            'Authorization': `Bearer ${accessToken}`
           },
           body: JSON.stringify(videoEditData)
         });
@@ -193,15 +194,19 @@ export default function Profile() {
   }
 
   if (loading) {
-    return <div className="h-1/2 w-full flex items-center justify-center">Loading...</div>
+    return (
+      <div className="min-h-[50vh] w-full flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-gray-600 border-t-white rounded-full animate-spin" />
+      </div>
+    )
   }
 
   if (error) {
-    return <div className="text-red-500 h-1/2 w-full flex items-center justify-center">{error}</div>
+    return <div className="text-red-500 min-h-[50vh] w-full flex items-center justify-center">{error}</div>
   }
 
   if (!currentUser) {
-    return <div className="h-1/2 w-full flex items-center justify-center">User not found</div>
+    return <div className="min-h-[50vh] w-full flex items-center justify-center text-gray-400">User not found</div>
   }
 
   const togglePopup = (videoId: string) => {
@@ -219,7 +224,7 @@ export default function Profile() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${currentUser.token}`
+          'Authorization': `Bearer ${accessToken}`
         }
       });
       console.log("success");
@@ -285,7 +290,7 @@ export default function Profile() {
                   <div className="mt-4 sm:mt-0">
                     {currentUser._id === id && (
                       <button
-                        className="border-2 border-white rounded-full hover:bg-gray-500 text-white font-bold py-2 px-4"
+                        className="border border-gray-600 rounded-full hover:bg-gray-800 text-white font-medium py-2 px-5 text-sm transition-colors"
                         onClick={handleEditProfileClick}
                       >
                         Edit Profile
@@ -306,8 +311,8 @@ export default function Profile() {
 
         {/* Edit Profile Form Popup */}
         {showEdits && (
-          <div className="fixed inset-0 flex items-center justify-center ml-10 bg-black bg-opacity-70 z-50">
-            <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-96 relative">
+          <div className="fixed inset-0 flex items-center justify-center px-4 bg-black/70 z-50" role="dialog" aria-modal="true" aria-label="Edit Profile">
+            <div className="bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg w-full max-w-md relative">
               <h2 className="text-2xl font-bold mb-2">Edit Profile</h2>
               <button
                 className="absolute top-2 right-2 text-gray-400 hover:text-white"
@@ -365,8 +370,8 @@ export default function Profile() {
 
         {/* Video Edit Form Popup */}
         {showVideoEdit && (
-          <div className="fixed inset-0 flex items-center justify-center ml-10 bg-black bg-opacity-70 z-50">
-            <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-96 relative">
+          <div className="fixed inset-0 flex items-center justify-center px-4 bg-black/70 z-50" role="dialog" aria-modal="true" aria-label="Edit Video">
+            <div className="bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg w-full max-w-md relative">
               <h2 className="text-2xl font-bold mb-2">Edit Video</h2>
               <button
                 className="absolute top-2 right-2 text-gray-400 hover:text-white"
@@ -462,7 +467,7 @@ export default function Profile() {
                 {videos.length > 0 ? (
                   videos.map((video: any, index: number) => (
                     <Link href={`/video/${video._id}`} key={index}>
-                      <div className="bg-black rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow p-2 hover:cursor-pointer hover:border hover:border-gray-600" style={{ height: '250px' }}>
+                      <div className="group bg-black rounded-xl overflow-hidden hover:bg-gray-900/50 transition-all duration-200 p-1.5">
                         <div className="relative h-2/3">
                           <img
                             src={video.thumbnail || '/default-thumbnail.jpg'}
@@ -562,8 +567,8 @@ export default function Profile() {
 
         {/* Playlist Popup */}
         {playlistPopupVideoId && (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-            <div className="bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md">
+          <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 px-4" role="dialog" aria-modal="true" aria-label="Select Playlists">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 w-full max-w-md">
               <h2 className="text-2xl font-semibold text-white mb-4">Select Playlists</h2>
               <div className="p-2">
                 {playlists.map((playlist: any) => (

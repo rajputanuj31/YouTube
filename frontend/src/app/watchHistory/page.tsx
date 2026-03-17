@@ -18,6 +18,11 @@ const WatchHistory: React.FC<WatchHistoryProps> = ({ showTitle = true, additiona
 
 
     useEffect(() => {
+        if (!currentUser?._id) {
+            setLoading(false);
+            return;
+        }
+
         const fetchWatchHistory = async () => {
             try {
                 const response = await fetch(`/api/v1/users/watch-history/${currentUser._id}`, {
@@ -40,10 +45,14 @@ const WatchHistory: React.FC<WatchHistoryProps> = ({ showTitle = true, additiona
         };
 
         fetchWatchHistory();
-    }, []);
+    }, [currentUser?._id]);
 
     if (loading) {
-        return <div>Loading...</div>;
+        return (
+            <div className="flex items-center justify-center py-12">
+                <div className="w-8 h-8 border-4 border-gray-600 border-t-white rounded-full animate-spin" />
+            </div>
+        );
     }
 
     if (error) {
@@ -52,37 +61,33 @@ const WatchHistory: React.FC<WatchHistoryProps> = ({ showTitle = true, additiona
 
     return (
         <div className={`${additionalClasses}`}>
-            {showTitle && <h1 className="text-2xl font-bold">Recent Watched</h1>}
+            {showTitle && <h1 className="text-xl sm:text-2xl font-bold">Recent Watched</h1>}
             {history.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mx-2 mt-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 mt-4">
                     {history.map((video) => (
-                        <div key={video._id} className="bg-black rounded-lg overflow-hidden shadow-lg max-w-xs hover:shadow-xl transition-shadow">
-                            <Link href={`/video/${video._id}`}>
-                                <div className="relative aspect-video">
+                        <Link href={`/video/${video._id}`} key={video._id}>
+                            <div className="group bg-black rounded-xl overflow-hidden hover:bg-gray-900/50 transition-all duration-200">
+                                <div className="relative aspect-video rounded-xl overflow-hidden">
                                     <Image
                                         src={video.thumbnail || "/default-thumbnail.jpg"}
                                         alt={video.title}
-                                        layout="fill"
-                                        objectFit="cover"
-                                        unoptimized={true}
+                                        fill
+                                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                        unoptimized
                                     />
-                                    <p className="text-white text-sm absolute bottom-2 right-2 bg-black bg-opacity-50 p-1 rounded-lg">{(parseFloat(video.duration) / 60).toFixed(2)} </p>
+                                    <span className="absolute bottom-2 right-2 bg-black/80 text-white text-xs font-medium px-1.5 py-0.5 rounded">{(parseFloat(video.duration) / 60).toFixed(2)}</span>
                                 </div>
-                                <div className="p-4">
-                                    <h2 className="font-semibold text-white">{video.title}</h2>
-                                    <div className="flex flex-col mt-1">
-                                        <p className="text-gray-400 text-sm">{video.ownerUsername}</p>
-                                        <div className="flex justify-between items-center">
-                                            <p className="text-gray-400 text-sm">{video.views} views • {getTimeAgo(video.createdAt)}</p>
-                                        </div>
-                                    </div>
+                                <div className="p-2 pt-3">
+                                    <h2 className="font-medium text-white text-sm line-clamp-2">{video.title}</h2>
+                                    <p className="text-gray-400 text-xs mt-1">{video.ownerUsername}</p>
+                                    <p className="text-gray-500 text-xs">{video.views} views • {getTimeAgo(video.createdAt)}</p>
                                 </div>
-                            </Link>
-                        </div>
+                            </div>
+                        </Link>
                     ))}
                 </div>
             ) : (
-                <p className="text-gray-400">No watch history available.</p>
+                <p className="text-gray-400 text-sm">No watch history available.</p>
             )}
         </div>
     );
