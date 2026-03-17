@@ -7,8 +7,8 @@ import Link from "next/link"
 import { useParams } from "next/navigation"
 import { FaTimes, FaEllipsisV, FaTrash, FaEdit, FaShareAlt, FaPlus } from 'react-icons/fa'; // Added FaShareAlt and FaPlus
 import { getTimeAgo } from "@/app/utils/getTimeAgo"
-import Playlist from "@/app/playlist/page"
-import WatchHistory from "@/app/watchHistory/page" // Importing WatchHistory component
+import Playlist from "@/components/PlaylistView"
+import WatchHistory from "@/components/WatchHistoryView"
 
 export default function Profile() {
   const { error, loading } = useSelector((state: any) => state.user)
@@ -101,7 +101,7 @@ export default function Profile() {
         if (!response.ok) {
           throw new Error('Failed to update profile');
         }
-        const data = await response.json();
+        await response.json();
         setShowEdits(false);
       } catch (error) {
         console.error("Error updating profile:", error);
@@ -128,7 +128,7 @@ export default function Profile() {
         if (!response.ok) {
           throw new Error('Failed to update video');
         }
-        const data = await response.json();
+        await response.json();
         setShowVideoEdit(false);
         // Refresh the video list or update the state accordingly
         setVideos(prev => prev.map(video => video._id === popupVideoId ? { ...video, ...videoEditData } : video));

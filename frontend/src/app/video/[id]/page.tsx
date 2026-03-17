@@ -18,7 +18,7 @@ export default function VideoPage() {
   const [videoOwner, setVideoOwner] = useState<any>(null)
   const [isSubscribed, setIsSubscribed] = useState(false)
   const currentUser = useSelector((state: any) => state.user.currentUser?.data.user)
-  const [comments, setComments] = useState<any[]>([])
+  const [, setComments] = useState<any[]>([])
   const [likes, setLikes] = useState<any[]>([])
 
   useEffect(() => {

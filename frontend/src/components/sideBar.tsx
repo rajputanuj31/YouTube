@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { FaHome, FaYoutube, FaBook, FaHistory, FaVideo, FaClock, FaCut } from 'react-icons/fa';
+import { FaHome, FaYoutube, FaBook, FaHistory, FaVideo } from 'react-icons/fa';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSelector } from 'react-redux';
 
 interface Channel {
@@ -17,6 +18,7 @@ interface Channel {
 
 const Sidebar = () => {
   const [subscribedChannels, setSubscribedChannels] = useState<Channel[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const currentUser = useSelector((state: any) => state.user.currentUser?.data.user);
 
   useEffect(() => {
@@ -71,10 +73,13 @@ const Sidebar = () => {
             {subscribedChannels.map(channel => (
               <li key={channel._id}>
                 <Link href={`/profile/${channel.channel}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800 active:bg-gray-700 transition-colors text-white">
-                  <img
+                  <Image
                     src={channel.channelDetails?.avatar || '/default-avatar.png'}
                     alt={channel.channelDetails?.fullName || 'Channel'}
+                    width={24}
+                    height={24}
                     className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+                    unoptimized
                   />
                   <span className="truncate text-sm">{channel.channelDetails?.fullName || 'Unknown Channel'}</span>
                 </Link>

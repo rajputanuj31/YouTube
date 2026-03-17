@@ -26,6 +26,7 @@ const SuggestionVideos = () => {
         <div className="px-2 sm:px-4 lg:px-3 pt-4">
             <h2 className="text-white text-lg font-bold mb-3">Related Videos</h2>
             <div className="flex flex-col gap-3">
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {videos.map((relatedVideo: any) => (
                     <Link href={`/video/${relatedVideo._id}`} key={relatedVideo._id}>
                         <div className="group flex flex-col sm:flex-row gap-2 rounded-xl p-1.5 hover:bg-gray-900/50 transition-colors">

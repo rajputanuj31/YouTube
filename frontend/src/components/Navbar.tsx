@@ -3,6 +3,7 @@ import { FaBars, FaSearch, FaUser, FaSignOutAlt, FaUserCircle, FaTrash, FaUpload
 import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import Login from './Auth/login';
 import Register from './Auth/Register';
 import api from '@/lib/api';
@@ -13,6 +14,7 @@ export default function Navbar({ toggleSidebar }: { toggleSidebar?: () => void }
     const [showRegister, setShowRegister] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
     const [isClient, setIsClient] = useState(false);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const currentUser = useSelector((state: any) => state.user.currentUser?.data.user)
     const router = useRouter();
     const dispatch = useDispatch();
@@ -128,12 +130,13 @@ export default function Navbar({ toggleSidebar }: { toggleSidebar?: () => void }
                     <div className="relative" ref={userMenuRef}>
                         <button className="text-white hover:text-gray-300" onClick={handleAvatarClick}>
                             {currentUser.avatar ? (
-                                <img
+                                <Image
                                     src={currentUser.avatar}
                                     alt="User Avatar"
-                                    width={30}
-                                    height={30}
-                                    className="h-10 w-10 rounded-full object-cover border-1 border-gray-300 shadow-sm transition-transform duration-300 transform hover:scale-105"
+                                    width={40}
+                                    height={40}
+                                    className="h-10 w-10 rounded-full object-cover border border-gray-300 shadow-sm transition-transform duration-300 hover:scale-105"
+                                    unoptimized
                                 />
                             ) : (
                                 <FaUser size={24} />

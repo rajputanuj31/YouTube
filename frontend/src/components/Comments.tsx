@@ -97,7 +97,8 @@ const Comments: React.FC<CommentsProps> = ({ setComments, currentUser, videoId }
         {comments.length > 0 ? (
           comments.map((c) => (
             <div key={c._id} className="text-gray-400 text-sm mb-4 flex">
-              <img src={c.ownerAvatar} alt={c.ownerUsername} className="w-8 h-8 rounded-full mr-2" /> {/* Added avatar */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={c.ownerAvatar} alt={c.ownerUsername || "User"} className="w-8 h-8 rounded-full mr-2" />
               <div className="flex flex-col">
                 <div className="flex items-center">
                   <p className="text-white text-sm font-semibold mr-3">@{c.ownerUsername}</p> {/* Added @ at username */}
