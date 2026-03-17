@@ -3,8 +3,8 @@ const nextConfig = {
     async rewrites() {
       return [
         {
-          source: "/api/v1/:path*", // When your frontend makes a request to `/api/...`
-          destination: "http://localhost:8000/api/v1/:path*", // Proxy to the backend running at localhost:3001
+          source: "/api/v1/:path*",
+          destination: `${process.env.NEXT_PUBLIC_API_URL || "https://youtube-nogs.onrender.com"}/api/v1/:path*`,
         },
       ];
     },
